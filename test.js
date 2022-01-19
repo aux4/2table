@@ -58,7 +58,7 @@ const data = [
 ];
 
 const structure =
-  "name:Name,birthday,other,lastBook:Last Book(title),lastBook:Book Info[id,title],age:Age,readingList:List[id,title],age:Old";
+  "name:Name{color:red},birthday,other,lastBook:Last Book(title),lastBook:Book Info[id,title],age:Age,readingList:List[id{color:cyan},title],age:Old{color:blue}";
 // "name,readingList[id,title]";
 
 const tableStructure = parseStructure(structure);
