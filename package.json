@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/aux4/2table#readme",
   "dependencies": {
-    "colors": "^1.4.0"
+    "colors": "^1.4.0",
+    "moment": "^2.29.3"
   }
 }
