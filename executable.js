@@ -24,7 +24,7 @@ const config = new Config(tableStructure);
     const inputString = await readStdIn();
     input = JSON.parse(inputString);
   } catch (e) {
-    console.error("Invalid JSON input");
+    console.error("Invalid JSON input:", e.message);
     process.exit(1);
   }
 
@@ -33,7 +33,7 @@ const config = new Config(tableStructure);
   try {
     data = prepareData(input, tableStructure, config);
   } catch (e) {
-    console.error("Error parsing the data");
+    console.error("Error parsing the data:", e.message);
     process.exit(2);
   }
 
@@ -41,7 +41,7 @@ const config = new Config(tableStructure);
     const table = new Table(data, tableStructure, config);
     console.log(table.print());
   } catch (e) {
-    console.error("cannot print the table");
+    console.error("cannot print the table:", e.message);
     process.exit(3);
   }
 })();
