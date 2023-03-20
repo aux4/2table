@@ -1,6 +1,6 @@
 {
   "name": "2table",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "Convert JSON to ASCII Table",
   "main": "index.js",
   "preferGlobal": true,
