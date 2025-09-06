@@ -223,3 +223,51 @@ cat employees.json | aux4 2table name:"Full Name",age:"Years Old",contact:"Conta
  John              30  john@example.com  123-456-7890
  Jane              25  jane@example.com  987-654-3210
 ```
+
+## auto-structure with missing nested fields
+
+```file:people-missing-fields.json
+[
+  {
+    "name": "John",
+    "age": 30,
+    "address": [
+      {
+        "street": "123 Main St",
+        "city": "NYC",
+        "state": "NY",
+        "zipCode": "10001"
+      },
+      {
+        "street": "456 Oak Ave",
+        "city": "NYC",
+        "zipCode": "10002"
+      }
+    ]
+  },
+  {
+    "name": "Jane",
+    "age": 25,
+    "address": [
+      {
+        "street": "789 Pine St",
+        "city": "SF",
+        "state": "CA",
+        "zipCode": "94102"
+      }
+    ]
+  }
+]
+```
+
+```execute
+cat people-missing-fields.json | aux4 2table
+```
+
+```expect
+ name  age  address
+            street       city  state  zipCode
+ John   30  123 Main St  NYC   NY     10001
+            456 Oak Ave  NYC          10002
+ Jane   25  789 Pine St  SF    CA     94102
+```

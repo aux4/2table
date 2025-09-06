@@ -33,6 +33,7 @@
               {
                 "name": "table",
                 "text": "The table structure to output.",
+                "default": "",
                 "arg": true
               }
             ]
