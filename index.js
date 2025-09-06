@@ -1,9 +1,9 @@
-const { Table } = require("./lib/Table");
-const { Config } = require("./lib/Config");
-const { parseStructure } = require("./lib/Structure");
-const { prepareData } = require("./lib/Data");
+import { Table } from "./lib/Table.js";
+import { Config } from "./lib/Config.js";
+import { parseStructure } from "./lib/Structure.js";
+import { prepareData } from "./lib/Data.js";
 
-module.exports = {
+export {
   Table,
   Config,
   parseStructure,

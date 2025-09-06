@@ -2,10 +2,10 @@
 
 process.stdin.setEncoding("utf8");
 
-const { Table, Config, parseStructure, prepareData } = require(".");
-const { AsciiTable } = require("./lib/AsciiTable");
-const { MarkdownTable } = require("./lib/MarkdownTable");
-const { readStdIn } = require("./lib/Input");
+import { Table, Config, parseStructure, prepareData } from "./index.js";
+import { AsciiTable } from "./lib/AsciiTable.js";
+import { MarkdownTable } from "./lib/MarkdownTable.js";
+import { readStdIn } from "./lib/Input.js";
 
 const args = process.argv.splice(2);
 

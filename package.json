@@ -2,6 +2,7 @@
   "name": "2table",
   "version": "0.2.9",
   "description": "Convert JSON to ASCII Table",
+  "type": "module",
   "preferGlobal": true,
   "bin": {
     "2table": "executable.js"
