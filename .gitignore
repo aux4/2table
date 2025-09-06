@@ -106,3 +106,4 @@ dist
 .tern-port
 
 .idea
+package/lib

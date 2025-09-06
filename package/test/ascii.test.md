@@ -140,3 +140,45 @@ cat deep-nested.json | aux4 2table name,age,contact[email,address[street,city]]
  John   30  john@example.com  123 Main St  NYC
  Jane   25  jane@example.com  456 Oak Ave  SF
 ```
+
+## nested objects inside arrays
+
+```file:nested-array-objects.json
+[
+  {
+    "id": 1,
+    "contacts": [
+      {
+        "person": {"name": "John Smith", "email": "john@example.com"},
+        "address": {"street": "123 Main St", "city": "NYC"}
+      },
+      {
+        "person": {"name": "Jane Doe", "email": "jane@example.com"},
+        "address": {"street": "456 Oak Ave", "city": "SF"}
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "contacts": [
+      {
+        "person": {"name": "Bob Wilson", "email": "bob@example.com"},
+        "address": {"street": "789 Pine St", "city": "LA"}
+      }
+    ]
+  }
+]
+```
+
+```execute
+cat nested-array-objects.json | aux4 2table 'id,contacts[person[name,email],address[street,city]]'
+```
+
+```expect
+ id  contacts
+     person                        address
+     name        email             street       city
+  1  John Smith  john@example.com  123 Main St  NYC
+     Jane Doe    jane@example.com  456 Oak Ave  SF
+  2  Bob Wilson  bob@example.com   789 Pine St  LA
+```
