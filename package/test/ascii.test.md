@@ -60,3 +60,39 @@ cat array.json | aux4 2table name,age,address[street,city,state,zipCode]
             456 Oak Ave  NYC   NY     10002
  Jane   25  789 Pine St  SF    CA     94102
 ```
+
+## fixed width columns with text wrapping
+
+```file:long-text.json
+[
+  {"name": "Alice", "description": "This is a very long description that should wrap to multiple lines when displayed in a fixed width column"},
+  {"name": "Bob", "description": "Short description"},
+  {"name": "Charlie", "description": "Another extremely long description that contains multiple sentences and should definitely be wrapped across several lines to fit within the specified column width"}
+]
+```
+
+```execute
+cat long-text.json | aux4 2table 'name{width:8},description{width:20}'
+```
+
+```expect
+ name      description
+ Alice     This is a very long
+           description that
+           should wrap to
+           multiple lines when
+           displayed in a
+           fixed width column
+ Bob       Short description
+ Charlie   Another extremely
+           long description
+           that contains
+           multiple sentences
+           and should
+           definitely be
+           wrapped across
+           several lines to
+           fit within the
+           specified column
+           width
+```
