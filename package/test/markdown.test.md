@@ -36,11 +36,11 @@ cat nested.json | aux4 2table --format md name,age,address[street,city,state,zip
 ```
 
 ```expect
-| name | age | address |
-| --- | --- | --- |
-|  |  | street       city  state  zipCode |
-| John | 30 | 123 Main St  NYC   NY     10001 |
-| Jane | 25 | 456 Oak Ave  SF    CA     94102 |
+| name | age | address |  |  |  |
+| --- | --- | --- | --- | --- | --- |
+|  |  | street | city | state | zipCode |
+| John | 30 | 123 Main St | NYC | NY | 10001 |
+| Jane | 25 | 456 Oak Ave | SF | CA | 94102 |
 ```
 
 ## array of objects
@@ -57,12 +57,12 @@ cat array.json | aux4 2table --format md name,age,address[street,city,state,zipC
 ```
 
 ```expect
-| name | age | address |
-| --- | --- | --- |
-|  |  | street       city  state  zipCode |
-| John | 30 | 123 Main St  NYC   NY     10001 |
-|  |  | 456 Oak Ave  NYC   NY     10002 |
-| Jane | 25 | 789 Pine St  SF    CA     94102 |
+| name | age | address |  |  |  |
+| --- | --- | --- | --- | --- | --- |
+|  |  | street | city | state | zipCode |
+| John | 30 | 123 Main St | NYC | NY | 10001 |
+|  |  | 456 Oak Ave | NYC | NY | 10002 |
+| Jane | 25 | 789 Pine St | SF | CA | 94102 |
 ```
 
 ## column renaming
@@ -101,9 +101,9 @@ cat employees.json | aux4 2table --format md name:"Full Name",age:"Years Old",co
 ```
 
 ```expect
-| Full Name | Years Old | Contact Info |
-| --- | --- | --- |
-|  |  | Email Address     Phone Number |
-| John | 30 | john@example.com  123-456-7890 |
-| Jane | 25 | jane@example.com  987-654-3210 |
+| Full Name | Years Old | Contact Info |  |
+| --- | --- | --- | --- |
+|  |  | Email Address | Phone Number |
+| John | 30 | john@example.com | 123-456-7890 |
+| Jane | 25 | jane@example.com | 987-654-3210 |
 ```
