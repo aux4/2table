@@ -1,0 +1,44 @@
+{
+  "scope": "aux4",
+  "name": "2table",
+  "version": "0.0.1",
+  "description": "Convert a JSON array of objects to a table format.",
+  "tags": [
+    "json",
+    "table",
+    "ascii",
+    "markdown"
+  ],
+  "profiles": [
+    {
+      "name": "main",
+      "commands": [
+        {
+          "name": "2table",
+          "execute": [
+            "stdin:node ${packageDir}/lib/aux4-2table.js values(format, table)"
+          ],
+          "help": {
+            "text": "Convert a JSON array of objects to a table format.",
+            "variables": [
+              {
+                "name": "format",
+                "text": "Table output format.",
+                "default": "ascii",
+                "options": [
+                  "ascii",
+                  "md"
+                ]
+              },
+              {
+                "name": "table",
+                "text": "The table structure to output.",
+                "arg": true
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

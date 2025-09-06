@@ -3,13 +3,22 @@
 process.stdin.setEncoding("utf8");
 
 const { Table, Config, parseStructure, prepareData } = require(".");
+const { AsciiTable } = require("./lib/AsciiTable");
+const { MarkdownTable } = require("./lib/MarkdownTable");
 const { readStdIn } = require("./lib/Input");
 
 const args = process.argv.splice(2);
 
-const structure = args[0];
-if (!structure) {
-  console.error(`Attribute columns are not specified:\n${"2table <columns comma separated>".cyan}`);
+if (args.length !== 2) {
+  console.error(`Usage: 2table <format> <columns>\nFormats: ascii, md\nExamples: 2table ascii name,age,city or 2table md name,age,city`);
+  process.exit(1);
+}
+
+const format = args[0];
+const structure = args[1];
+
+if (format !== "ascii" && format !== "md") {
+  console.error(`Invalid format: ${format}\nSupported formats: ascii, md`);
   process.exit(1);
 }
 
@@ -38,7 +47,12 @@ const config = new Config(tableStructure);
   }
 
   try {
-    const table = new Table(data, tableStructure, config);
+    let table;
+    if (format === "ascii") {
+      table = new AsciiTable(data, tableStructure, config);
+    } else if (format === "md") {
+      table = new MarkdownTable(data, tableStructure, config);
+    }
     console.log(table.print());
   } catch (e) {
     console.error("cannot print the table:", e.message);

@@ -2,13 +2,13 @@
   "name": "2table",
   "version": "0.2.9",
   "description": "Convert JSON to ASCII Table",
-  "main": "index.js",
   "preferGlobal": true,
   "bin": {
     "2table": "executable.js"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "rollup -c"
   },
   "repository": {
     "type": "git",
@@ -20,7 +20,7 @@
     "table",
     "ascii"
   ],
-  "author": "Aux4",
+  "author": "aux4 LLC",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/aux4/2table/issues"
@@ -28,6 +28,12 @@
   "homepage": "https://github.com/aux4/2table#readme",
   "dependencies": {
     "colors": "^1.4.0",
-    "moment": "^2.29.3"
+    "moment": "^2.30.1"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "rollup": "^4.50.0"
   }
 }
