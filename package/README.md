@@ -1,118 +1,150 @@
-# 2table
-Convert JSON to ASCII Table
+# aux4/2table
 
-## Install
+Convert a JSON array of objects to a table format (ASCII or Markdown).
 
+`aux4/2table` is an aux4 CLI package that reads a JSON array from standard input and renders it as a human-readable table. It supports:
+
+- ASCII or Markdown output formats
+- Nested objects and arrays
+- Column selection and ordering
+- Column renaming
+- Fixed column widths and text wrapping
+
+## Installation
+
+```bash
+aux4 aux4 pkger install aux4/2table
 ```
-npm install -g 2table
+
+## Quick Start
+
+Assuming you have a file `data.json`:
+
+```json
+[
+  {"name": "Alice", "age": 30, "city": "New York"},
+  {"name": "Bob",   "age": 25, "city": "Los Angeles"}
+]
+```
+
+Render an ASCII table of `name`, `age`, and `city`:
+
+```bash
+cat data.json | aux4 2table name,age,city
 ```
 
 ## Usage
 
-Example `test.json`
-```
-[
-  {
-    "addressLine1": "1333 2ND ST",
-    "city": "SANTA MONICA",
-    "state": "CA",
-    "zip5": "90401",
-    "zip4": "4100",
-    "info": {
-      "carrierRoute": "C002",
-      "countyName": "LOS ANGELES",
-      "deliveryPoint": "99",
-      "checkDigit": "3",
-      "cmar": "N"
-    }
-  },
-  {
-    "addressLine1": "1333 2ND ST STE 200",
-    "city": "SANTA MONICA",
-    "state": "CA",
-    "zip5": "90401",
-    "zip4": "1151",
-    "info": {
-      "carrierRoute": "C002",
-      "countyName": "LOS ANGELES",
-      "deliveryPoint": "99",
-      "checkDigit": "0",
-      "cmar": "N"
-    }
-  },
-  {
-    "addressLine1": "1333 2ND ST FL 1",
-    "city": "SANTA MONICA",
-    "state": "CA",
-    "zip5": "90401",
-    "zip4": "4104",
-    "info": {
-      "carrierRoute": "C002",
-      "countyName": "LOS ANGELES",
-      "deliveryPoint": "99",
-      "checkDigit": "9",
-      "cmar": "N"
-    }
-  }
-]
+Transform JSON arrays into tables with customizable columns and formats.
+
+### Main Commands
+
+- [`aux4 2table`](./commands/2table) - Convert a JSON array of objects to a table format.
+
+### Command Reference
+
+#### aux4 2table
+
+Convert a JSON array of objects to a table format.
+
+Usage:
+```bash
+aux4 2table [--format <ascii|md>] <table-spec>
 ```
 
-### Just output the specified fields as columns
+Options:
 
+- `--format <ascii|md>`
+  Table output format. Defaults to `ascii`.
+
+Positional arguments:
+
+- `<table-spec>`
+  A comma-separated list of fields to include. Supports nested selection, renaming, and column options.
+  - Simple field: `name`
+  - Nested object: `address[street,city]`
+  - Array of objects: `items[name,qty]`
+  - Column renaming: `name:Name,age:Age`
+  - Width wrapping: `description{width:20}`
+
+## Examples
+
+### 1. Basic ASCII Table
+
+```bash
+cat simple.json | aux4 2table name,age,city
 ```
-cat test.json | 2table "addressLine1,city,state,zip5"
-
- addressLine1         city          state  zip5  
- 1333 2ND ST          SANTA MONICA  CA     90401 
- 1333 2ND ST STE 200  SANTA MONICA  CA     90401 
- 1333 2ND ST FL 1     SANTA MONICA  CA     90401  
-```
-
-### Rename the columns
-
-```
-cat test.json | 2table "addressLine1:Address,city:City,state:State,zip5:ZipCode"
-
- Address              City          State  ZipCode 
- 1333 2ND ST          SANTA MONICA  CA     90401   
- 1333 2ND ST STE 200  SANTA MONICA  CA     90401   
- 1333 2ND ST FL 1     SANTA MONICA  CA     90401   
-```
-
-### Define column width
-
-```
-cat test.json | 2table "addressLine1:Address{width:11},city:City,state:State,zip5:ZipCode"
-
- Address      City          State  ZipCode 
- 1333 2ND ST  SANTA MONICA  CA     90401   
- 1333 2ND ST  SANTA MONICA  CA     90401   
- STE 200                                   
- 1333 2ND ST  SANTA MONICA  CA     90401   
- FL 1                                      
+```bash
+ name     age  city       
+ Alice     30   New York   
+ Bob       25   Los Angeles
 ```
 
-### Define column color
+### 2. Markdown Table
 
+```bash
+cat simple.json | aux4 2table --format md name,age,city
 ```
-cat test.json | 2table "addressLine1:Address{width:11;color:red},city:City,state:State{color:cyan},zip5:ZipCode"
-
- Address      City          State  ZipCode 
- 1333 2ND ST  SANTA MONICA  CA     90401   
- 1333 2ND ST  SANTA MONICA  CA     90401   
- STE 200                                   
- 1333 2ND ST  SANTA MONICA  CA     90401   
- FL 1                                      
+```markdown
+| name  | age | city        |
+| ----- | --- | ----------- |
+| Alice | 30  | New York    |
+| Bob   | 25  | Los Angeles |
 ```
 
-### Nested object
+### 3. Nested Objects
 
+```bash
+cat nested.json | aux4 2table name,age,address[street,city,state]
 ```
-cat test.json | 2table "addressLine1:Address,city:City,state:State,zip5:ZipCode,info:Details[countyName:County,carrierRoute:Route]"
+```bash
+ name  age  address                
+            street       city  state
+ John   30  123 Main St  NYC   NY   
+ Jane   25  456 Oak Ave   SF    CA   
+```
 
- Address              City          State  ZipCode  Details            
-                                                    County       Route 
- 1333 2ND ST          SANTA MONICA  CA     90401    LOS ANGELES  C002  
- 1333 2ND ST STE 200  SANTA MONICA  CA     90401    LOS ANGELES  C002  
- 1333 2ND ST FL 1     SANTA MONICA  CA     90401    LOS ANGELES  C002  
+### 4. Array of Objects
+
+```bash
+cat array.json | aux4 2table name,age,address[street,city]
 ```
+```bash
+ name  age  address              
+            street       city    
+ John   30  123 Main St  NYC     
+        456 Oak Ave  NYC         
+ Jane   25  789 Pine St  SF      
+```
+
+### 5. Column Renaming
+
+```bash
+cat people.json | aux4 2table name:Name,age:Age,email:"Email Address"
+```
+```bash
+ Name     Age  Email Address       
+ Alice    30   alice@example.com   
+ Bob      25   bob@example.com     
+```
+
+### 6. Fixed Width & Text Wrapping
+
+```bash
+cat long-text.json | aux4 2table 'name{width:8},description{width:20}'
+```
+```bash
+ name      description         
+ Alice     This is a very long
+           description that    
+           should wrap to      
+           multiple lines when 
+           displayed in a      
+           fixed width column  
+```
+
+## License
+
+This package is licensed under the Apache License 2.0.
+
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
