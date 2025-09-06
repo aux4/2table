@@ -64,3 +64,46 @@ cat array.json | aux4 2table --format md name,age,address[street,city,state,zipC
 |  |  | 456 Oak Ave  NYC   NY     10002 |
 | Jane | 25 | 789 Pine St  SF    CA     94102 |
 ```
+
+## column renaming
+
+```file:people.json
+[
+  {"name": "Alice", "age": 30, "email": "alice@example.com"},
+  {"name": "Bob", "age": 25, "email": "bob@example.com"},
+  {"name": "Charlie", "age": 35, "email": "charlie@example.com"}
+]
+```
+
+```execute
+cat people.json | aux4 2table --format md name:Name,age:Age,email:"Email Address"
+```
+
+```expect
+| Name | Age | Email Address |
+| --- | --- | --- |
+| Alice | 30 | alice@example.com |
+| Bob | 25 | bob@example.com |
+| Charlie | 35 | charlie@example.com |
+```
+
+## nested column renaming
+
+```file:employees.json
+[
+  {"name": "John", "age": 30, "contact": {"email": "john@example.com", "phone": "123-456-7890"}},
+  {"name": "Jane", "age": 25, "contact": {"email": "jane@example.com", "phone": "987-654-3210"}}
+]
+```
+
+```execute
+cat employees.json | aux4 2table --format md name:"Full Name",age:"Years Old",contact:"Contact Info"[email:"Email Address",phone:"Phone Number"]
+```
+
+```expect
+| Full Name | Years Old | Contact Info |
+| --- | --- | --- |
+|  |  | Email Address     Phone Number |
+| John | 30 | john@example.com  123-456-7890 |
+| Jane | 25 | jane@example.com  987-654-3210 |
+```
