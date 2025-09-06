@@ -36,6 +36,7 @@ cat nested.json | aux4 2table name,age,address[street,city,state,zipCode]
 
 ```expect
  name  age  address
+            street       city  state  zipCode
  John   30  123 Main St  NYC   NY     10001
  Jane   25  456 Oak Ave  SF    CA     94102
 ```
@@ -95,4 +96,47 @@ cat long-text.json | aux4 2table 'name{width:8},description{width:20}'
            fit within the
            specified column
            width
+```
+
+## deeply nested objects with property selection
+
+```file:deep-nested.json
+[
+  {
+    "name": "John",
+    "age": 30,
+    "contact": {
+      "email": "john@example.com",
+      "address": {
+        "street": "123 Main St",
+        "city": "NYC",
+        "country": "USA"
+      }
+    }
+  },
+  {
+    "name": "Jane",
+    "age": 25,
+    "contact": {
+      "email": "jane@example.com",
+      "address": {
+        "street": "456 Oak Ave",
+        "city": "SF",
+        "country": "USA"
+      }
+    }
+  }
+]
+```
+
+```execute
+cat deep-nested.json | aux4 2table name,age,contact[email,address[street,city]]
+```
+
+```expect
+ name  age  contact
+            email             address
+                              street       city
+ John   30  john@example.com  123 Main St  NYC
+ Jane   25  jane@example.com  456 Oak Ave  SF
 ```

@@ -10,51 +10,6 @@ function getDefaultExportFromCjs (x) {
 
 var executable$1 = {};
 
-var Config_1;
-var hasRequiredConfig;
-
-function requireConfig () {
-	if (hasRequiredConfig) return Config_1;
-	hasRequiredConfig = 1;
-	function Config(structure) {
-	  const config = {};
-
-	  structure.forEach(structureItem => {
-	    const widthControl = new Control(parseInt(structureItem.properties.width));
-	    widthControl.add(structureItem.label.length);
-
-	    config[structureItem.key] = {
-	      width: widthControl
-	    };
-
-	    if (structureItem.group) {
-	      config[structureItem.key].group = new Config(structureItem.group);
-	    }
-	  });
-
-	  return config;
-	}
-
-	function Control(fixedWidth) {
-	  let internalValue = fixedWidth || 0;
-
-	  return {
-	    add: function (value) {
-	      if (!fixedWidth && value > internalValue) {
-	        internalValue = value;
-	      }
-	    },
-
-	    value: function () {
-	      return internalValue;
-	    }
-	  };
-	}
-
-	Config_1 = { Config, Control };
-	return Config_1;
-}
-
 var lib = {exports: {}};
 
 var colors = {exports: {}};
@@ -6694,6 +6649,51 @@ function requireMoment () {
 	return moment$1.exports;
 }
 
+var Config_1;
+var hasRequiredConfig;
+
+function requireConfig () {
+	if (hasRequiredConfig) return Config_1;
+	hasRequiredConfig = 1;
+	function Config(structure) {
+	  const config = {};
+
+	  structure.forEach(structureItem => {
+	    const widthControl = new Control(parseInt(structureItem.properties.width));
+	    widthControl.add(structureItem.label.length);
+
+	    config[structureItem.key] = {
+	      width: widthControl
+	    };
+
+	    if (structureItem.group) {
+	      config[structureItem.key].group = new Config(structureItem.group);
+	    }
+	  });
+
+	  return config;
+	}
+
+	function Control(fixedWidth) {
+	  let internalValue = fixedWidth || 0;
+
+	  return {
+	    add: function (value) {
+	      if (!fixedWidth && value > internalValue) {
+	        internalValue = value;
+	      }
+	    },
+
+	    value: function () {
+	      return internalValue;
+	    }
+	  };
+	}
+
+	Config_1 = { Config, Control };
+	return Config_1;
+}
+
 var Utils;
 var hasRequiredUtils;
 
@@ -6955,6 +6955,242 @@ function requireTable () {
 	return Table_1;
 }
 
+var Structure;
+var hasRequiredStructure;
+
+function requireStructure () {
+	if (hasRequiredStructure) return Structure;
+	hasRequiredStructure = 1;
+	const colors = requireLib();
+
+	function parseStructure(structure) {
+	  return parseItems(structure);
+	}
+
+	function parseItems(str) {
+	  const items = [];
+	  let current = '';
+	  let bracketDepth = 0;
+	  let parenDepth = 0;
+	  let braceDepth = 0;
+	  
+	  for (let i = 0; i < str.length; i++) {
+	    const char = str[i];
+	    
+	    if (char === '[') bracketDepth++;
+	    else if (char === ']') bracketDepth--;
+	    else if (char === '(') parenDepth++;
+	    else if (char === ')') parenDepth--;
+	    else if (char === '{') braceDepth++;
+	    else if (char === '}') braceDepth--;
+	    
+	    if (char === ',' && bracketDepth === 0 && parenDepth === 0 && braceDepth === 0) {
+	      items.push(parseItem(current.trim()));
+	      current = '';
+	    } else {
+	      current += char;
+	    }
+	  }
+	  
+	  if (current.trim()) {
+	    items.push(parseItem(current.trim()));
+	  }
+	  
+	  return items;
+	}
+
+	function parseItem(item) {
+	  const PARSER_REGEX =
+	    /^(?<field>[^:([{]+)(:(?<label>([^([{]+)))?(\((?<nestedField>[^\)]+)\))?(\[(?<group>.+)\])?(\{(?<properties>[^\}]+)\})?/;
+	    
+	  const parsedItem = PARSER_REGEX.exec(item);
+	  
+	  if (!parsedItem) {
+	    throw new Error(`Invalid structure item: ${item}`);
+	  }
+
+	  const field = parsedItem.groups.field;
+	  const label = parsedItem.groups.label;
+	  const fieldExtractor = parsedItem.groups.nestedField;
+	  const groupExtractor = parsedItem.groups.group;
+	  const propertiesExtractor = parsedItem.groups.properties;
+
+	  const properties = readProperties(propertiesExtractor);
+
+	  const structureItem = {};
+	  structureItem.field = field;
+	  structureItem.label = label || field;
+	  structureItem.key = `${structureItem.field}:${structureItem.label}`;
+	  structureItem.properties = properties;
+	  structureItem.extractor = fieldExtractor ? value => extractField(fieldExtractor, value) : value => value;
+	  structureItem.style = defaultStyle;
+	  if (groupExtractor) {
+	    structureItem.group = parseItems(groupExtractor);
+	  }
+	  return structureItem;
+	}
+
+	function readProperties(propertiesInfo) {
+	  const properties = {};
+
+	  if (propertiesInfo) {
+	    propertiesInfo
+	      .split(";")
+	      .map(property => property.split(":"))
+	      .map(property => ({ key: property[0], value: property[1] }))
+	      .forEach(property => {
+	        properties[property.key] = extractPropertyValue(property.value);
+	      });
+	  }
+
+	  return properties;
+	}
+
+	function extractPropertyValue(value) {
+	  if (value.indexOf(",") > -1) {
+	    return value.split(",");
+	  }
+	  return value;
+	}
+
+	function extractField(fieldName, value) {
+	  if (Array.isArray(value)) {
+	    return value.map(item => item[fieldName]);
+	  }
+	  return value[fieldName];
+	}
+
+	function defaultStyle(properties) {
+	  return text => {
+	    let styledText = text;
+	    if (properties.color) {
+	      const color = Array.isArray(properties.color) ? properties.color : [properties.color];
+	      color.forEach(colorStyle => {
+	        try {
+	          styledText = colors[colorStyle](styledText);
+	        } catch (e) {}
+	      });
+	    }
+	    return styledText;
+	  };
+	}
+
+	Structure = { parseStructure };
+	return Structure;
+}
+
+var Data;
+var hasRequiredData;
+
+function requireData () {
+	if (hasRequiredData) return Data;
+	hasRequiredData = 1;
+	const { length } = requireUtils();
+
+	function prepareData(data, structure, config) {
+	  if (Array.isArray(data)) {
+	    return data.map(item => transform(item, structure, config));
+	  }
+	  return [transform(data, structure, config)];
+	}
+
+	function transform(data, structure, config) {
+	  if (data === undefined || data === null) return data;
+
+	  const item = {};
+	  structure.forEach(structureItem => {
+	    const value = structureItem.extractor(data[structureItem.field]);
+
+	    if (structureItem.group) {
+	      const groupConfig = config ? config[structureItem.key].group : null;
+	      if (Array.isArray(value)) {
+	        item[structureItem.key] = value.map(valueItem => transform(valueItem, structureItem.group, groupConfig));
+	      } else {
+	        item[structureItem.key] = transform(value, structureItem.group, groupConfig);
+	      }
+	    } else {
+	      item[structureItem.key] = value;
+	    }
+
+	    if (structureItem.properties.width) {
+	      if (typeof item[structureItem.key] === "string") {
+	        item[structureItem.key] = limitWidth(
+	          item[structureItem.key],
+	          structureItem.properties.width,
+	          structureItem.properties.truncate
+	        );
+	      } else if (Array.isArray(item[structureItem.key]) && typeof item[structureItem.key][0] === "string") {
+	        item[structureItem.key] = item[structureItem.key].map(item =>
+	          limitWidth(item, structureItem.properties.width, structureItem.properties.truncate)
+	        );
+	      }
+	    }
+
+	    if (config) {
+	      config[structureItem.key].width.add(length(item[structureItem.key], config[structureItem.key].group));
+	    }
+	  });
+	  return item;
+	}
+
+	function limitWidth(text, width, truncate) {
+	  if (text.length <= width) {
+	    return text;
+	  }
+
+	  if (truncate === "true") {
+	    return text.substring(0, width - 3) + "...";
+	  }
+
+	  return breakWords(text, width).replace(/\n\s/g, "\n").replace(/\n$/, "");
+	}
+
+	function breakWords(text, width) {
+	  let whitespacePosition = 0;
+	  let lastBreak = 0;
+	  let breakWordText = "";
+	  for (let i = 0; i < text.length; i++) {
+	    if (text[i].match(/\W/)) {
+	      whitespacePosition = i;
+	    }
+
+	    if (i > 0 && (i - lastBreak) % width === 0) {
+	      const lastPosition = whitespacePosition > lastBreak ? whitespacePosition : i;
+	      breakWordText += text.substring(lastBreak, lastPosition).trim() + "\n";
+	      lastBreak = lastPosition;
+	      i = lastPosition + 1;
+	    }
+	  }
+
+	  breakWordText += text.substring(lastBreak, text.length).trim();
+
+	  return breakWordText;
+	}
+
+	Data = { prepareData };
+	return Data;
+}
+
+var _2table;
+var hasRequired_2table;
+
+function require_2table () {
+	if (hasRequired_2table) return _2table;
+	hasRequired_2table = 1;
+	const { Table } = requireTable();
+	const { Config } = requireConfig();
+	const { parseStructure } = requireStructure();
+	const { prepareData } = requireData();
+
+	_2table = {
+	  Table,
+	  Config,
+	  parseStructure,
+	  prepareData
+	};
+	return _2table;
+}
+
 var BaseTable_1;
 var hasRequiredBaseTable;
 
@@ -6980,13 +7216,17 @@ function requireBaseTable () {
 	    if (this.includeHeaders) {
 	      this.rows.push(this.createHeader(this.structure, this.config));
 	      
-	      // Add nested headers only once if there are nested arrays
-	      const hasNestedArrays = this.data.length > 0 && this.structure.some(structureItem => 
-	        structureItem.group && Array.isArray(this.data[0][structureItem.key])
-	      );
+	      // Add nested headers for any nested structures (arrays or objects)
+	      const hasNested = this.structure.some(structureItem => structureItem.group);
 	      
-	      if (hasNestedArrays) {
-	        this.rows.push(this.createGlobalNestedHeaderRow(this.structure, this.config));
+	      if (hasNested) {
+	        // Get the maximum nesting depth to create the appropriate number of header rows
+	        const maxDepth = this.getMaxNestingDepth(this.structure);
+	        
+	        // Create header rows for each nesting level
+	        for (let level = 1; level < maxDepth; level++) {
+	          this.rows.push(this.createNestedHeaderRowAtLevel(this.structure, this.config, level));
+	        }
 	      }
 	    }
 
@@ -7059,6 +7299,21 @@ function requireBaseTable () {
 	  
 	  createCell(config, data) {
 	    return new BaseCell(config, data);
+	  }
+	  
+	  getMaxNestingDepth(structure) {
+	    let maxDepth = 1;
+	    for (const item of structure) {
+	      if (item.group) {
+	        const nestedDepth = 1 + this.getMaxNestingDepth(item.group);
+	        maxDepth = Math.max(maxDepth, nestedDepth);
+	      }
+	    }
+	    return maxDepth;
+	  }
+	  
+	  createNestedHeaderRowAtLevel(structure, config, level) {
+	    return new BaseNestedHeaderRowAtLevel(structure, config, level, this);
 	  }
 	}
 
@@ -7145,6 +7400,20 @@ function requireBaseTable () {
 	              nestedValue = "";
 	            } else if (typeof nestedValue === "number") {
 	              nestedValue = `${nestedValue}`.padStart(this.config[structureItem.key].group[groupItem.key].width.value(), " ");
+	            } else if (groupItem.group && typeof nestedValue === 'object') {
+	              // Handle recursive nested objects (e.g., address[street,city])
+	              const deeplyNestedValues = groupItem.group.map(deepGroupItem => {
+	                let deepValue = nestedValue[deepGroupItem.key];
+	                if (deepValue === undefined || deepValue === null) {
+	                  deepValue = "";
+	                } else if (typeof deepValue === "number") {
+	                  deepValue = `${deepValue}`.padStart(this.config[structureItem.key].group[groupItem.key].group[deepGroupItem.key].width.value(), " ");
+	                } else {
+	                  deepValue = `${deepValue}`.padEnd(this.config[structureItem.key].group[groupItem.key].group[deepGroupItem.key].width.value(), " ");
+	                }
+	                return deepValue;
+	              });
+	              nestedValue = deeplyNestedValues.join("  ");
 	            } else {
 	              nestedValue = `${nestedValue}`.padEnd(this.config[structureItem.key].group[groupItem.key].width.value(), " ");
 	            }
@@ -7407,7 +7676,71 @@ function requireBaseTable () {
 	  }
 	}
 
-	BaseTable_1 = { BaseTable, BaseHeader, BaseRow, BaseCell, BaseNestedHeaderRow, BaseNestedDataRow, BaseGlobalNestedHeaderRow };
+	class BaseNestedHeaderRowAtLevel {
+	  constructor(structure, config, level, table) {
+	    this.structure = structure;
+	    this.config = config;
+	    this.level = level;
+	    this.table = table;
+	    this.cells = [];
+	    
+	    this.rowConfig = {
+	      height: new Control()
+	    };
+	    
+	    this.buildCells();
+	  }
+	  
+	  buildCells() {
+	    this.structure.forEach(structureItem => {
+	      const cellConfig = {
+	        width: this.config[structureItem.key].width,
+	        height: this.rowConfig.height
+	      };
+
+	      const headerText = this.getHeaderTextAtLevel(structureItem, this.level);
+	      this.cells.push(this.table.createCell(cellConfig, headerText));
+	    });
+	  }
+	  
+	  getHeaderTextAtLevel(structureItem, level) {
+	    if (!structureItem.group) {
+	      return ""; // No nested structure, empty cell
+	    }
+	    
+	    if (level === 1) {
+	      // First level of nesting - show the direct children headers
+	      return structureItem.group.map(groupItem => {
+	        const width = this.config[structureItem.key].group[groupItem.key].width.value();
+	        return groupItem.label.padEnd(width, " ");
+	      }).join("  ");
+	    } else {
+	      // Deeper levels - recursively get headers from nested groups
+	      return structureItem.group.map(groupItem => {
+	        if (groupItem.group && level === 2) {
+	          // Second level nesting
+	          return groupItem.group.map(deepGroupItem => {
+	            const width = this.config[structureItem.key].group[groupItem.key].group[deepGroupItem.key].width.value();
+	            return deepGroupItem.label.padEnd(width, " ");
+	          }).join("  ");
+	        } else {
+	          const width = this.config[structureItem.key].group[groupItem.key].width.value();
+	          return "".padEnd(width, " ");
+	        }
+	      }).join("  ");
+	    }
+	  }
+	  
+	  print() {
+	    return this.printRow(this.cells, this.rowConfig);
+	  }
+	  
+	  printRow(cells, config) {
+	    return "";
+	  }
+	}
+
+	BaseTable_1 = { BaseTable, BaseHeader, BaseRow, BaseCell, BaseNestedHeaderRow, BaseNestedDataRow, BaseGlobalNestedHeaderRow, BaseNestedHeaderRowAtLevel };
 	return BaseTable_1;
 }
 
@@ -7418,7 +7751,7 @@ function requireAsciiTable () {
 	if (hasRequiredAsciiTable) return AsciiTable_1;
 	hasRequiredAsciiTable = 1;
 	requireLib();
-	const { BaseTable, BaseHeader, BaseRow, BaseCell, BaseNestedHeaderRow, BaseNestedDataRow, BaseGlobalNestedHeaderRow } = requireBaseTable();
+	const { BaseTable, BaseHeader, BaseRow, BaseCell, BaseNestedHeaderRow, BaseNestedDataRow, BaseGlobalNestedHeaderRow, BaseNestedHeaderRowAtLevel } = requireBaseTable();
 
 	class AsciiTable extends BaseTable {
 	  getHeaderStyle() {
@@ -7447,6 +7780,10 @@ function requireAsciiTable () {
 	  
 	  createGlobalNestedHeaderRow(structure, config) {
 	    return new AsciiGlobalNestedHeaderRow(structure, config, this);
+	  }
+	  
+	  createNestedHeaderRowAtLevel(structure, config, level) {
+	    return new AsciiNestedHeaderRowAtLevel(structure, config, level, this);
 	  }
 	  
 	  print() {
@@ -7620,6 +7957,27 @@ function requireAsciiTable () {
 	  }
 	}
 
+	class AsciiNestedHeaderRowAtLevel extends BaseNestedHeaderRowAtLevel {
+	  printRow(cells, config) {
+	    const cellLines = cells.map(cell => cell.print());
+
+	    let text = "";
+
+	    for (let i = 0; i < config.height.value(); i++) {
+	      if (i > 0) text += "\n";
+	      cellLines.forEach(cell => {
+	        text += cell[i];
+	      });
+	    }
+
+	    if (text.trim().length === 0) {
+	      text = "";
+	    }
+
+	    return text;
+	  }
+	}
+
 	AsciiTable_1 = { AsciiTable };
 	return AsciiTable_1;
 }
@@ -7630,7 +7988,7 @@ var hasRequiredMarkdownTable;
 function requireMarkdownTable () {
 	if (hasRequiredMarkdownTable) return MarkdownTable_1;
 	hasRequiredMarkdownTable = 1;
-	const { BaseTable, BaseHeader, BaseRow, BaseCell, BaseNestedHeaderRow, BaseNestedDataRow, BaseGlobalNestedHeaderRow } = requireBaseTable();
+	const { BaseTable, BaseHeader, BaseRow, BaseCell, BaseNestedHeaderRow, BaseNestedDataRow, BaseGlobalNestedHeaderRow, BaseNestedHeaderRowAtLevel } = requireBaseTable();
 
 	class MarkdownTable extends BaseTable {
 	  getHeaderStyle() {
@@ -7659,6 +8017,10 @@ function requireMarkdownTable () {
 	  
 	  createGlobalNestedHeaderRow(structure, config) {
 	    return new MarkdownGlobalNestedHeaderRow(structure, config, this);
+	  }
+	  
+	  createNestedHeaderRowAtLevel(structure, config, level) {
+	    return new MarkdownNestedHeaderRowAtLevel(structure, config, level, this);
 	  }
 	  
 	  print() {
@@ -7744,202 +8106,19 @@ function requireMarkdownTable () {
 	  }
 	}
 
+	class MarkdownNestedHeaderRowAtLevel extends BaseNestedHeaderRowAtLevel {
+	  printRow(cells, config) {
+	    const cellValues = cells.map(cell => {
+	      const cellLines = cell.print();
+	      return cellLines.length > 0 ? cellLines[0].trim() : "";
+	    });
+	    
+	    return `| ${cellValues.join(" | ")} |`;
+	  }
+	}
+
 	MarkdownTable_1 = { MarkdownTable };
 	return MarkdownTable_1;
-}
-
-var Structure;
-var hasRequiredStructure;
-
-function requireStructure () {
-	if (hasRequiredStructure) return Structure;
-	hasRequiredStructure = 1;
-	const colors = requireLib();
-	const COMMA_REGEX = /([\w:\s]+(\([^(]+\))?(\[[^[]+])?({([^{]+)})?)/g;
-	const PARSER_REGEX =
-	  /^(?<field>[^:([{]+)(:(?<label>([^([{]+)))?(\((?<nestedField>[^\)]+)\))?(\[(?<group>[^\]]+)\])?(\{(?<properties>[^\}]+)\})?/;
-
-	function parseStructure(structure) {
-	  return structure.match(COMMA_REGEX).map(item => {
-	    const parsedItem = PARSER_REGEX.exec(item);
-
-	    const field = parsedItem.groups.field;
-	    const label = parsedItem.groups.label;
-	    const fieldExtractor = parsedItem.groups.nestedField;
-	    const groupExtractor = parsedItem.groups.group;
-	    const propertiesExtractor = parsedItem.groups.properties;
-
-	    const properties = readProperties(propertiesExtractor);
-
-	    const structureItem = {};
-	    structureItem.field = field;
-	    structureItem.label = label || field;
-	    structureItem.key = `${structureItem.field}:${structureItem.label}`;
-	    structureItem.properties = properties;
-	    structureItem.extractor = fieldExtractor ? value => extractField(fieldExtractor, value) : value => value;
-	    structureItem.style = defaultStyle;
-	    if (groupExtractor) {
-	      structureItem.group = parseStructure(groupExtractor);
-	    }
-	    return structureItem;
-	  });
-	}
-
-	function readProperties(propertiesInfo) {
-	  const properties = {};
-
-	  if (propertiesInfo) {
-	    propertiesInfo
-	      .split(";")
-	      .map(property => property.split(":"))
-	      .map(property => ({ key: property[0], value: property[1] }))
-	      .forEach(property => {
-	        properties[property.key] = extractPropertyValue(property.value);
-	      });
-	  }
-
-	  return properties;
-	}
-
-	function extractPropertyValue(value) {
-	  if (value.indexOf(",") > -1) {
-	    return value.split(",");
-	  }
-	  return value;
-	}
-
-	function extractField(fieldName, value) {
-	  if (Array.isArray(value)) {
-	    return value.map(item => item[fieldName]);
-	  }
-	  return value[fieldName];
-	}
-
-	function defaultStyle(properties) {
-	  return text => {
-	    let styledText = text;
-	    if (properties.color) {
-	      const color = Array.isArray(properties.color) ? properties.color : [properties.color];
-	      color.forEach(colorStyle => {
-	        try {
-	          styledText = colors[colorStyle](styledText);
-	        } catch (e) {}
-	      });
-	    }
-	    return styledText;
-	  };
-	}
-
-	Structure = { parseStructure };
-	return Structure;
-}
-
-var Data;
-var hasRequiredData;
-
-function requireData () {
-	if (hasRequiredData) return Data;
-	hasRequiredData = 1;
-	const { length } = requireUtils();
-
-	function prepareData(data, structure, config) {
-	  if (Array.isArray(data)) {
-	    return data.map(item => transform(item, structure, config));
-	  }
-	  return [transform(data, structure, config)];
-	}
-
-	function transform(data, structure, config) {
-	  if (data === undefined || data === null) return data;
-
-	  const item = {};
-	  structure.forEach(structureItem => {
-	    const value = structureItem.extractor(data[structureItem.field]);
-
-	    if (structureItem.group) {
-	      if (Array.isArray(value)) {
-	        item[structureItem.key] = value.map(valueItem => transform(valueItem, structureItem.group));
-	      } else {
-	        item[structureItem.key] = transform(value, structureItem.group);
-	      }
-	    } else {
-	      item[structureItem.key] = value;
-	    }
-
-	    if (structureItem.properties.width) {
-	      if (typeof item[structureItem.key] === "string") {
-	        item[structureItem.key] = limitWidth(
-	          item[structureItem.key],
-	          structureItem.properties.width,
-	          structureItem.properties.truncate
-	        );
-	      } else if (Array.isArray(item[structureItem.key]) && typeof item[structureItem.key][0] === "string") {
-	        item[structureItem.key] = item[structureItem.key].map(item =>
-	          limitWidth(item, structureItem.properties.width, structureItem.properties.truncate)
-	        );
-	      }
-	    }
-
-	    if (config) {
-	      config[structureItem.key].width.add(length(item[structureItem.key], config[structureItem.key].group));
-	    }
-	  });
-	  return item;
-	}
-
-	function limitWidth(text, width, truncate) {
-	  if (text.length <= width) {
-	    return text;
-	  }
-
-	  if (truncate === "true") {
-	    return text.substring(0, width - 3) + "...";
-	  }
-
-	  return breakWords(text, width).replace(/\n\s/g, "\n").replace(/\n$/, "");
-	}
-
-	function breakWords(text, width) {
-	  let whitespacePosition = 0;
-	  let lastBreak = 0;
-	  let breakWordText = "";
-	  for (let i = 0; i < text.length; i++) {
-	    if (text[i].match(/\W/)) {
-	      whitespacePosition = i;
-	    }
-
-	    if (i > 0 && (i - lastBreak) % width === 0) {
-	      const lastPosition = whitespacePosition > lastBreak ? whitespacePosition : i;
-	      breakWordText += text.substring(lastBreak, lastPosition).trim() + "\n";
-	      lastBreak = lastPosition;
-	      i = lastPosition + 1;
-	    }
-	  }
-
-	  breakWordText += text.substring(lastBreak, text.length).trim();
-
-	  return breakWordText;
-	}
-
-	Data = { prepareData };
-	return Data;
-}
-
-var _2table;
-var hasRequired_2table;
-
-function require_2table () {
-	if (hasRequired_2table) return _2table;
-	hasRequired_2table = 1;
-	const { Config } = requireConfig();
-	const { Table } = requireTable();
-	const { AsciiTable } = requireAsciiTable();
-	const { MarkdownTable } = requireMarkdownTable();
-	const { parseStructure } = requireStructure();
-	const { prepareData } = requireData();
-
-	_2table = { Table, AsciiTable, MarkdownTable, Config, parseStructure, prepareData };
-	return _2table;
 }
 
 var Input;
