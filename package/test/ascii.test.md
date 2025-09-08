@@ -271,3 +271,77 @@ cat people-missing-fields.json | aux4 2table
             456 Oak Ave  NYC          10002
  Jane   25  789 Pine St  SF    CA     94102
 ```
+
+## property selection with dot notation
+
+```file:people-with-nested.json
+[
+  {"name": "Alice", "age": 30, "address": {"city": "New York", "state": "NY", "country": "USA"}},
+  {"name": "Bob", "age": 25, "address": {"city": "Los Angeles", "state": "CA", "country": "USA"}},
+  {"name": "Charlie", "age": 35, "address": {"city": "Chicago", "state": "IL", "country": "USA"}}
+]
+```
+
+```execute
+cat people-with-nested.json | aux4 2table name,age,address.city,address.state
+```
+
+```expect
+ name     age  address.city  address.state
+ Alice     30  New York      NY
+ Bob       25  Los Angeles   CA
+ Charlie   35  Chicago       IL
+```
+
+## property selection with arrays
+
+```file:companies.json
+[
+  {
+    "name": "TechCorp",
+    "employees": [
+      {"person": {"firstName": "John", "lastName": "Smith"}, "role": "Developer", "salary": 75000},
+      {"person": {"firstName": "Jane", "lastName": "Doe"}, "role": "Designer", "salary": 70000}
+    ]
+  },
+  {
+    "name": "StartupInc", 
+    "employees": [
+      {"person": {"firstName": "Mike", "lastName": "Wilson"}, "role": "CEO", "salary": 120000}
+    ]
+  }
+]
+```
+
+```execute
+cat companies.json | aux4 2table name,employees[person.firstName,person.lastName,role,salary]
+```
+
+```expect
+ name        employees
+             person.firstName  person.lastName  role       salary
+ TechCorp    John              Smith            Developer   75000
+             Jane              Doe              Designer    70000
+ StartupInc  Mike              Wilson           CEO        120000
+```
+
+## dot notation property selection
+
+```file:people-with-address.json
+[
+  {"name": "Alice", "age": 30, "address": {"city": "New York", "state": "NY", "country": "USA"}},
+  {"name": "Bob", "age": 25, "address": {"city": "Los Angeles", "state": "CA", "country": "USA"}},
+  {"name": "Charlie", "age": 35, "address": {"city": "Chicago", "state": "IL", "country": "USA"}}
+]
+```
+
+```execute
+cat people-with-address.json | aux4 2table name,age,address.city,address.state
+```
+
+```expect
+ name     age  address.city  address.state
+ Alice     30  New York      NY
+ Bob       25  Los Angeles   CA
+ Charlie   35  Chicago       IL
+```
