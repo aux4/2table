@@ -79,7 +79,7 @@ cat data.json | aux4 2table name,age,city
 
 Output:
 
-```
+```text
  name     age  city
  Alice     30  New York
  Bob       25  Los Angeles
@@ -96,7 +96,7 @@ cat data.json | aux4 2table --format md name,age,city
 
 Output:
 
-```
+```text
 | name | age | city |
 | --- | --- | --- |
 | Alice | 30 | New York |
