@@ -345,3 +345,42 @@ cat people-with-address.json | aux4 2table name,age,address.city,address.state
  Bob       25  Los Angeles   CA
  Charlie   35  Chicago       IL
 ```
+
+## multi-level dot notation
+
+```file:people-nested.json
+[
+  {
+    "id": 1,
+    "person": {
+      "firstName": "John",
+      "lastName": "Smith",
+      "address": {
+        "city": "New York",
+        "state": "NY"
+      }
+    }
+  },
+  {
+    "id": 2,
+    "person": {
+      "firstName": "Jane",
+      "lastName": "Doe",
+      "address": {
+        "city": "Los Angeles",
+        "state": "CA"
+      }
+    }
+  }
+]
+```
+
+```execute
+cat people-nested.json | aux4 2table id,person.firstName,person.lastName,person.address.city,person.address.state
+```
+
+```expect
+ id  person.firstName  person.lastName  person.address.city  person.address.state
+  1  John              Smith            New York             NY
+  2  Jane              Doe              Los Angeles          CA
+```

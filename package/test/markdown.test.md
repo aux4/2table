@@ -140,3 +140,65 @@ cat nested-array-objects.json | aux4 2table --format md 'id,contacts[name,email,
 |  | Jane Doe | jane@example.com | Developer |
 | 2 | Bob Wilson | bob@example.com | Designer |
 ```
+
+## dot notation property selection
+
+```file:people-with-address.json
+[
+  {"name": "Alice", "age": 30, "address": {"city": "New York", "state": "NY", "country": "USA"}},
+  {"name": "Bob", "age": 25, "address": {"city": "Los Angeles", "state": "CA", "country": "USA"}},
+  {"name": "Charlie", "age": 35, "address": {"city": "Chicago", "state": "IL", "country": "USA"}}
+]
+```
+
+```execute
+cat people-with-address.json | aux4 2table --format md name,age,address.city,address.state
+```
+
+```expect
+| name | age | address.city | address.state |
+| --- | --- | --- | --- |
+| Alice | 30 | New York | NY |
+| Bob | 25 | Los Angeles | CA |
+| Charlie | 35 | Chicago | IL |
+```
+
+## multi-level dot notation
+
+```file:people-nested.json
+[
+  {
+    "id": 1,
+    "person": {
+      "firstName": "John",
+      "lastName": "Smith",
+      "address": {
+        "city": "New York",
+        "state": "NY"
+      }
+    }
+  },
+  {
+    "id": 2,
+    "person": {
+      "firstName": "Jane",
+      "lastName": "Doe",
+      "address": {
+        "city": "Los Angeles",
+        "state": "CA"
+      }
+    }
+  }
+]
+```
+
+```execute
+cat people-nested.json | aux4 2table --format md id,person.firstName,person.lastName,person.address.city,person.address.state
+```
+
+```expect
+| id | person.firstName | person.lastName | person.address.city | person.address.state |
+| --- | --- | --- | --- | --- |
+| 1 | John | Smith | New York | NY |
+| 2 | Jane | Doe | Los Angeles | CA |
+```
