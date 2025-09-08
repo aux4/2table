@@ -1,14 +1,8 @@
 # aux4/2table
 
-Convert a JSON array of objects to a table format (ASCII or Markdown).
+Convert a JSON array of objects to a human-readable table (ASCII or Markdown).
 
-`aux4/2table` is an aux4 CLI package that reads a JSON array from standard input and renders it as a human-readable table. It supports:
-
-- ASCII or Markdown output formats
-- Nested objects and arrays
-- Column selection and ordering
-- Column renaming
-- Fixed column widths and text wrapping
+A lightweight aux4 package that reads a JSON array from stdin and prints a table. Use it to inspect JSON data quickly in a terminal or to generate Markdown tables for documentation.
 
 ## Installation
 
@@ -18,133 +12,148 @@ aux4 aux4 pkger install aux4/2table
 
 ## Quick Start
 
-Assuming you have a file `data.json`:
-
-```json
-[
-  {"name": "Alice", "age": 30, "city": "New York"},
-  {"name": "Bob",   "age": 25, "city": "Los Angeles"}
-]
-```
-
-Render an ASCII table of `name`, `age`, and `city`:
+Pipe a JSON array to the command and specify the columns you want to display.
 
 ```bash
 cat data.json | aux4 2table name,age,city
 ```
 
+Produce Markdown output with --format:
+
+```bash
+cat data.json | aux4 2table --format md name,age,city
+```
+
 ## Usage
 
-Transform JSON arrays into tables with customizable columns and formats.
+This package converts JSON arrays into table output. You can select simple fields, expand nested objects and arrays, rename columns, and set fixed column widths for wrapping.
 
 ### Main Commands
 
-- [`aux4 2table`](./commands/2table) - Convert a JSON array of objects to a table format.
+- [`aux4 2table`](./commands/aux4/2table) - Convert a JSON array of objects to a table format.
 
 ### Command Reference
 
-#### aux4 2table
+Command: `aux4 2table`
 
-Convert a JSON array of objects to a table format.
+Variables (defined in the package):
 
-Usage:
-```bash
-aux4 2table [--format <ascii|md>] <table-spec>
-```
+- --format
+  - Description: Table output format
+  - Options: `ascii` (default), `md`
+- table (positional)
+  - Description: The table structure to output (column list)
+  - Examples: `name,age,city`, `name,age,address[street,city]`, `name:"Full Name",age:Age`
 
-Options:
+Table expression features
 
-- `--format <ascii|md>`
-  Table output format. Defaults to `ascii`.
+- Simple columns: `name,age,city`
+- Nested objects: `address[street,city]`
+- Arrays of objects: `contacts[name,email]`
+- Column renaming: `name:"Full Name",age:Age`
+- Fixed width with wrapping: `name{width:8},description{width:20}`
 
-Positional arguments:
-
-- `<table-spec>`
-  A comma-separated list of fields to include. Supports nested selection, renaming, and column options.
-  - Simple field: `name`
-  - Nested object: `address[street,city]`
-  - Array of objects: `items[name,qty]`
-  - Column renaming: `name:Name,age:Age`
-  - Width wrapping: `description{width:20}`
+Input: JSON array provided via stdin.
 
 ## Examples
 
-### 1. Basic ASCII Table
+All examples use the full package invocation `aux4 2table` (recommended for clarity).
+
+### ASCII table (default)
+
+Input (data.json):
+
+```json
+[
+  { "name": "Alice", "age": 30, "city": "New York" },
+  { "name": "Bob", "age": 25, "city": "Los Angeles" },
+  { "name": "Charlie", "age": 35, "city": "Chicago" }
+]
+```
+
+Command:
 
 ```bash
-cat simple.json | aux4 2table name,age,city
-```
-```bash
- name     age  city       
- Alice     30   New York   
- Bob       25   Los Angeles
+cat data.json | aux4 2table name,age,city
 ```
 
-### 2. Markdown Table
+Output:
 
-```bash
-cat simple.json | aux4 2table --format md name,age,city
 ```
-```markdown
-| name  | age | city        |
-| ----- | --- | ----------- |
-| Alice | 30  | New York    |
-| Bob   | 25  | Los Angeles |
+ name     age  city
+ Alice     30  New York
+ Bob       25  Los Angeles
+ Charlie   35  Chicago
 ```
 
-### 3. Nested Objects
+### Markdown table (--format md)
+
+Command:
 
 ```bash
-cat nested.json | aux4 2table name,age,address[street,city,state]
-```
-```bash
- name  age  address                
-            street       city  state
- John   30  123 Main St  NYC   NY   
- Jane   25  456 Oak Ave   SF    CA   
+cat data.json | aux4 2table --format md name,age,city
 ```
 
-### 4. Array of Objects
+Output:
 
-```bash
-cat array.json | aux4 2table name,age,address[street,city]
 ```
-```bash
- name  age  address              
-            street       city    
- John   30  123 Main St  NYC     
-        456 Oak Ave  NYC         
- Jane   25  789 Pine St  SF      
+| name | age | city |
+| --- | --- | --- |
+| Alice | 30 | New York |
+| Bob | 25 | Los Angeles |
+| Charlie | 35 | Chicago |
 ```
 
-### 5. Column Renaming
+### Nested objects
+
+Input (nested.json):
+
+```json
+[
+  {
+    "name": "John",
+    "age": 30,
+    "address": { "street": "123 Main St", "city": "NYC", "state": "NY", "zipCode": "10001" }
+  },
+  { "name": "Jane", "age": 25, "address": { "street": "456 Oak Ave", "city": "SF", "state": "CA", "zipCode": "94102" } }
+]
+```
+
+Command:
 
 ```bash
-cat people.json | aux4 2table name:Name,age:Age,email:"Email Address"
-```
-```bash
- Name     Age  Email Address       
- Alice    30   alice@example.com   
- Bob      25   bob@example.com     
+cat nested.json | aux4 2table name,age,address[street,city,state,zipCode]
 ```
 
-### 6. Fixed Width & Text Wrapping
+This produces multi-row headers for the nested `address` fields and prints each address row beneath the parent record.
+
+### Renaming columns
+
+Use colon syntax to rename columns in the output:
+
+```bash
+cat people.json | aux4 2table name:"Full Name",age:"Years Old",contact:"Contact Info"[email:"Email Address",phone:"Phone Number"]
+```
+
+### Fixed width and wrapping
+
+Set a width for long text fields to enable wrapping in ASCII output:
 
 ```bash
 cat long-text.json | aux4 2table 'name{width:8},description{width:20}'
 ```
-```bash
- name      description         
- Alice     This is a very long
-           description that    
-           should wrap to      
-           multiple lines when 
-           displayed in a      
-           fixed width column  
-```
+
+## Examples from tests
+
+The repository includes full example runs in the `test/` folder. Reproduce them locally:
+
+- ASCII examples: `test/ascii.test.md`
+- Markdown examples: `test/markdown.test.md`
+
+Each test file contains sample input files, the exact command to run, and expected output blocks.
 
 ## License
 
-This package is licensed under the Apache License 2.0.
+This package is licensed under the Apache-2.0 License.
 
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)

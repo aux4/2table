@@ -1,71 +1,105 @@
-### Description
+#### Description
 
-The `2table` command reads JSON from standard input and renders it as a readable table in either ASCII or Markdown format. You control which fields appear, how they are labeled, and how nested structures (objects or arrays) expand into subcolumns. Inline definitions allow you to set fixed column widths, specify truncation behavior, and apply ANSI colors or text styles—all without altering the source data or writing extra code.
+2table converts a JSON array (or single JSON object) into a human-readable table. It supports two output formats: an ASCII fixed-width table and a Markdown table. You specify which fields to include using a compact structure language; if you omit the structure it will be inferred from the input JSON.
 
-Columns are declared in a concise comma-separated string. You can rename fields with `field:Header`, drill into nested objects or arrays with `parent[childA,childB]`, and augment each column with properties in braces such as `{width:12;truncate:true}` or `{color:blue,underline}`. This makes `2table` an ideal utility for quickly inspecting complex JSON payloads or preparing data for reports.
+The structure language supports nested objects and arrays (e.g. address[street,city]) so nested fields can be rendered as sub-columns. Columns can be given fixed widths (and optional truncation) to force wrapping or to align numeric values.
+
+The command accepts the output format and a table structure/column list. Format can be provided positionally or with --format; the table structure is a positional argument (or omitted to auto-generate).
 
 #### Usage
 
+Describe the main parameters and options of the command.
+
 ```bash
-aux4 2table [--format <ascii|md>] <columns-definition>
+aux4 2table [optional args (based on profile name break by :] <command> --<variable> <value>
 ```
 
-- `--format <ascii|md>`
-  Specify the table style: `ascii` for a plain-text grid (default) or `md` for a Markdown table.
+Key parameters
 
-- `<columns-definition>`
-  A comma-separated list of column specs. Each spec follows this pattern:
+- format: output format, either ascii (default) or md. Can be provided as the first positional argument or via --format.
+- table: the table structure (columns) to output. This is a positional argument when provided. If omitted, the utility will try to auto-generate the structure from the JSON input.
 
-  ```text
-  fieldName[:HeaderLabel][{property1:value1;property2:value2}][nestedField1,nestedField2,...]
-  ```
+Structure examples
 
-  • **Basic field**: `name` selects the top-level `name` property.
+- name,age,city -> simple flat columns
+- name,age,address[street,city] -> nested object rendered as sub-columns
+- id,contacts[name,email] -> array of objects; rows expand for each nested array element
+- name{width:8} -> column width control (wraps long text to the width)
 
-  • **Custom label**: `name:FullName` renames the header to `FullName`. Quotes allow spaces: `id:"User ID"`.
+#### Example
 
-  • **Inline properties** (inside `{}`;
-  separated by `;`):
-  - `width:<N>` ensures a minimum column width of N characters.
-  - `truncate:true` shortens content exceeding width and appends `...`.
-  - `color:<style>` applies an ANSI color or text style (e.g., `red`, `underline`, `bold`). Multiple styles comma-separate.
-
-  • **Nested objects/arrays**: `parent[childA,childB]` expands the `parent` object or array into separate columns for each child key. You can combine this with renaming and properties: `contacts:"Contacts"[name:Name,email:Email]{width:20;color:cyan}`.
-
-#### Examples
-
-# Default ASCII output with basic fields
+##### Simple ASCII table (explicit structure)
 
 ```bash
-cat data.json | aux4 2table id,name,age,city
+cat simple.json | aux4 2table name,age,city
 ```
 
-# Markdown output
+Explaination: reads an array of objects from stdin and prints an ASCII table with columns name, age and city.
 
-```bash
-cat data.json | aux4 2table --format md id,name,age,city
+```text
+ name     age  city
+ Alice     30  New York
+ Bob       25  Los Angeles
+ Charlie   35  Chicago
 ```
 
-# Rename columns and set a fixed width
+##### Simple Markdown table (use --format md)
 
 ```bash
-cat data.json | aux4 2table id:UserID,name:"Full Name"{width:15},age{width:4}
+cat simple.json | aux4 2table --format md name,age,city
 ```
 
-# Colorize and truncate long values
+This prints the same columns in a GitHub-flavored Markdown table.
 
-```bash
-cat data.json | aux4 2table name{color:green},status{width:10;truncate:true}
+```text
+| name | age | city |
+| --- | --- | --- |
+| Alice | 30 | New York |
+| Bob | 25 | Los Angeles |
+| Charlie | 35 | Chicago |
 ```
 
-# Expand a nested object
+##### Nested structure (object fields rendered as sub-columns)
 
 ```bash
-cat profile.json | aux4 2table id,profile[name,city]
+cat nested.json | aux4 2table name,age,address[street,city,state,zipCode]
 ```
 
-# Combine nested array, custom label, and styling
+The address field is an object; its selected keys become sub-columns under the address column.
+
+```text
+ name  age  address
+            street       city  state  zipCode
+ John   30  123 Main St  NYC   NY     10001
+ Jane   25  456 Oak Ave  SF    CA     94102
+```
+
+##### Fixed-width columns with wrapping
 
 ```bash
-cat nested.json | aux4 2table --format ascii id,contacts:"Contacts"[name:"Name",email:"Email",role]{width:25;color:blue}
+cat long-text.json | aux4 2table 'name{width:8},description{width:20}'
+```
+
+This forces the name column to 8 characters and the description column to 20 characters, wrapping text to multiple lines when needed.
+
+```text
+ name      description
+ Alice     This is a very long
+           description that
+           should wrap to
+           multiple lines when
+           displayed in a
+           fixed width column
+ Bob       Short description
+ Charlie   Another extremely
+           long description
+           that contains
+           multiple sentences
+           and should
+           definitely be
+           wrapped across
+           several lines to
+           fit within the
+           specified column
+           width
 ```
