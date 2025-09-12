@@ -18,7 +18,7 @@
         {
           "name": "2table",
           "execute": [
-            "stdin:node ${packageDir}/lib/aux4-2table.js values(format, table)"
+            "stdin:node ${packageDir}/lib/aux4-2table.mjs values(format, table)"
           ],
           "help": {
             "text": "Convert a JSON array of objects to a table format.",

@@ -7,11 +7,16 @@ import { AsciiTable } from "./lib/AsciiTable.js";
 import { MarkdownTable } from "./lib/MarkdownTable.js";
 import { readStdIn } from "./lib/Input.js";
 import { generateStructureFromJson } from "./lib/AutoStructure.js";
+import colors from "colors";
+
+colors.enable();
 
 const args = process.argv.splice(2);
 
 if (args.length < 1 || args.length > 2) {
-  console.error(`Usage: 2table <format> [columns]\nFormats: ascii, md\nExamples: 2table ascii name,age,city or 2table md name,age,city\nIf columns is omitted, structure will be auto-generated from JSON`);
+  console.error(
+    `Usage: 2table <format> [columns]\nFormats: ascii, md\nExamples: 2table ascii name,age,city or 2table md name,age,city\nIf columns is omitted, structure will be auto-generated from JSON`
+  );
   process.exit(1);
 }
 
