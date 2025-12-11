@@ -202,3 +202,19 @@ cat people-nested.json | aux4 2table --format md id,person.firstName,person.last
 | 1 | John | Smith | New York | NY |
 | 2 | Jane | Doe | Los Angeles | CA |
 ```
+
+## single object input
+
+```file:single-object.json
+{"name": "Alice", "age": 30, "city": "New York", "email": "alice@example.com"}
+```
+
+```execute
+cat single-object.json | aux4 2table --format md name,age,city,email
+```
+
+```expect
+| name | age | city | email |
+| --- | --- | --- | --- |
+| Alice | 30 | New York | alice@example.com |
+```
