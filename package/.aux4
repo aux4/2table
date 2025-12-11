@@ -18,7 +18,7 @@
         {
           "name": "2table",
           "execute": [
-            "stdin:node ${packageDir}/lib/aux4-2table.mjs values(format, table, lineNumbers)"
+            "stdin:node ${packageDir}/lib/aux4-2table.mjs values(format, table, lineNumbers, showInvalidLines)"
           ],
           "help": {
             "text": "Convert a JSON array of objects to a table format.",
@@ -41,6 +41,11 @@
               {
                 "name": "lineNumbers",
                 "text": "Add a first column with line numbers (aligned to the right) starting from 1.",
+                "default": "false"
+              },
+              {
+                "name": "showInvalidLines",
+                "text": "Show invalid lines as <invalid line> in red instead of skipping them.",
                 "default": "false"
               }
             ]
