@@ -44,6 +44,12 @@ Variables (defined in the package):
 - table (positional)
   - Description: The table structure to output (column list)
   - Examples: `name,age,city`, `name,age,address[street,city]`, `name:"Full Name",age:Age`
+- --lineNumbers
+  - Description: Add a first column with line numbers starting from 1
+  - Options: `true`, `false` (default)
+- --showInvalidLines
+  - Description: Show invalid lines as <invalid line> instead of skipping them
+  - Options: `true`, `false` (default)
 
 Table expression features
 
@@ -142,6 +148,50 @@ Set a width for long text fields to enable wrapping in ASCII output:
 ```bash
 cat long-text.json | aux4 2table 'name{width:8},description{width:20}'
 ```
+
+### Auto-structure generation
+
+When no structure is provided, the command automatically analyzes the JSON to generate an optimal table structure:
+
+```bash
+cat complex-data.json | aux4 2table
+```
+
+This automatically detects nested objects and arrays, creating appropriate column groupings.
+
+### Line numbers and invalid data handling
+
+Add line numbers for data debugging and control how invalid JSON lines are handled:
+
+```bash
+cat data.json | aux4 2table name,age,city --lineNumbers true --showInvalidLines true
+```
+
+Output:
+```text
+ #  name     age  city
+ 1  Alice     30  New York
+ 2  <invalid line>
+ 3  Charlie   35  Chicago
+```
+
+### Dot notation for nested properties
+
+Access nested object properties using dot notation:
+
+```bash
+cat nested.json | aux4 2table name,age,address.city,address.state
+```
+
+### Complex nested structures
+
+Handle deeply nested objects and arrays with mixed object types:
+
+```bash
+cat mixed-objects.json | aux4 2table 'type,data[logs[level,message],metrics[cpu,memory,disk]]'
+```
+
+This creates multi-level headers and handles objects that contain both arrays and nested objects.
 
 ## Examples from tests
 

@@ -18,6 +18,8 @@ Key parameters
 
 - format: output format, either ascii (default) or md. Can be provided as the first positional argument or via --format.
 - table: the table structure (columns) to output. This is a positional argument when provided. If omitted, the utility will try to auto-generate the structure from the JSON input.
+- lineNumbers: add a first column with line numbers starting from 1 (default: false).
+- showInvalidLines: show invalid JSON lines as <invalid line> instead of skipping them (default: false).
 
 Structure examples
 
@@ -102,4 +104,34 @@ This forces the name column to 8 characters and the description column to 20 cha
            fit within the
            specified column
            width
+
+##### Auto-structure generation
+
+```bash
+cat complex-data.json | aux4 2table
 ```
+
+When no table structure is provided, the command automatically analyzes the JSON input to generate an optimal structure, including nested objects and arrays.
+
+##### Line numbers with invalid data handling
+
+```bash
+cat data.json | aux4 2table name,age,city --lineNumbers true --showInvalidLines true
+```
+
+Shows line numbers and displays invalid JSON lines instead of skipping them:
+
+```text
+ #  name     age  city
+ 1  Alice     30  New York
+ 2  <invalid line>
+ 3  Charlie   35  Chicago
+```
+
+##### Dot notation for nested properties
+
+```bash
+cat nested.json | aux4 2table name,age,address.city,address.state
+```
+
+Access deeply nested object properties using dot notation without expanding the entire nested structure.
