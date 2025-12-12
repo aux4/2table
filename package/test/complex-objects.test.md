@@ -153,7 +153,7 @@ cat nested-config.json | aux4 2table --table service,config,status
 ```
 
 ```execute
-cat mixed-objects.json | aux4 2table 'type[user,system],data[logs[leel,message],metrics[cpu,memory,disk]]'
+cat mixed-objects.json | aux4 2table 'type,data[logs[level,message],metrics[cpu,memory,disk]]'
 ```
 
 ```expect
