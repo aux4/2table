@@ -161,5 +161,6 @@ cat mixed-objects.json | aux4 2table
          logs                      metrics
          level  message            cpu  memory  disk
  user
- system                             75     512  [object Object]
+ system  info   System started     75     512  [object Object]
+         error  Connection failed
 ```
