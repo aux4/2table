@@ -82,8 +82,8 @@ cat long-text.json | aux4 2table 'name{width:8},description{width:20}'
            description that
            should wrap to
            multiple lines when
-           displayed in a
-           fixed width column
+           displayed in a fixed
+           width column
  Bob       Short description
  Charlie   Another extremely
            long description
@@ -92,10 +92,9 @@ cat long-text.json | aux4 2table 'name{width:8},description{width:20}'
            and should
            definitely be
            wrapped across
-           several lines to
-           fit within the
-           specified column
-           width
+           several lines to fit
+           within the specified
+           column width
 ```
 
 ## deeply nested objects with property selection

@@ -1,0 +1,32 @@
+[
+  {
+    "type": "user",
+    "data": {
+      "profile": {
+        "name": "John Doe",
+        "settings": {
+          "theme": "light",
+          "lang": "en"
+        }
+      },
+      "permissions": ["read", "write"]
+    }
+  },
+  {
+    "type": "system",
+    "data": {
+      "logs": [
+        {"level": "info", "message": "System started"},
+        {"level": "error", "message": "Connection failed"}
+      ],
+      "metrics": {
+        "cpu": 75,
+        "memory": 512,
+        "disk": {
+          "used": 50,
+          "total": 100
+        }
+      }
+    }
+  }
+]
