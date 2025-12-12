@@ -45,15 +45,18 @@
 }
 ```
 
+### specify the structure
+
 ```execute
-cat complex-data.json | aux4 2table
+cat complex-data.json | aux4 2table 'config[database[host,port,credentials],api[endpoints,rateLimit,features]],metadata[version,buildDate,dependencies[name,version]],users[id,role],settings[theme,notifications[email,push,sms]]'
 ```
 
 ```expect
- config                            metadata                              users      settings
- database         api              version  buildDate   dependencies     id  role   theme  notifications
- database:database: [object Object], api:api: [object Object]  version:version: 2.1.0, buildDate:buildDate: 2023-12-01, dependencies:dependencies: [object Object],[object Object]   1  admin  theme:theme: dark, notifications:notifications: [object Object]
-                                                                          2  user
+ config                                                                              metadata                                users      settings
+ database                          api                                               version  buildDate   dependencies       id  role   theme  notifications
+ host       port  credentials      endpoints             rateLimit  features                              name      version                    email  push   sms
+ localhost  5432  [object Object]  users,posts,comments        100  [object Object]  2.1.0    2023-12-01  express   4.18.0    1  admin  dark   true   false
+                                                                                                          mongoose  7.0.1     2  user
 ```
 
 ## Complex objects with specified structure
@@ -108,8 +111,8 @@ cat nested-config.json | aux4 2table --table service,config,status
 
 ```expect
  service         config           status
- authentication  providers: google,facebook,twitter, tokens: [object Object]  active
- database        connections: [object Object], cache: [object Object]  maintenance
+ authentication  [object Object]  active
+ database        [object Object]  maintenance
 ```
 
 ## Array containing mixed object types
@@ -155,7 +158,8 @@ cat mixed-objects.json | aux4 2table
 
 ```expect
  type    data
-         profile          permissions  logs             metrics
- user    [object Object]  read,write
- system                                [object Object],[object Object]  [object Object]
+         logs                      metrics
+         level  message            cpu  memory  disk
+ user
+ system                             75     512  [object Object]
 ```

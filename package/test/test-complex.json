@@ -1,0 +1,40 @@
+{
+  "config": {
+    "database": {
+      "host": "localhost",
+      "port": 5432,
+      "credentials": {
+        "username": "admin",
+        "password": "secret"
+      }
+    },
+    "api": {
+      "endpoints": ["users", "posts", "comments"],
+      "rateLimit": 100,
+      "features": {
+        "caching": true,
+        "logging": false
+      }
+    }
+  },
+  "metadata": {
+    "version": "2.1.0",
+    "buildDate": "2023-12-01",
+    "dependencies": [
+      {"name": "express", "version": "4.18.0"},
+      {"name": "mongoose", "version": "7.0.1"}
+    ]
+  },
+  "users": [
+    {"id": 1, "role": "admin"},
+    {"id": 2, "role": "user"}
+  ],
+  "settings": {
+    "theme": "dark",
+    "notifications": {
+      "email": true,
+      "push": false,
+      "sms": null
+    }
+  }
+}
