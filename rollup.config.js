@@ -6,7 +6,8 @@ export default {
   input: "executable.js",
   output: {
     file: "package/lib/aux4-2table.mjs",
-    format: "esm"
+    format: "esm",
+    inlineDynamicImports: true
   },
   plugins: [
     json(),

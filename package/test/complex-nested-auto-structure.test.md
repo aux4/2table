@@ -7,7 +7,7 @@
 ## auto-structure with deeply nested objects
 
 ```execute
-cat complex-nested.json | aux4 2table --format ascii
+cat complex-nested.json | aux4 2table --format ascii --structure 'copilot[model[config,type]],my[test[table,long,nested[field,array]]],table,test[list[name,age]]'
 ```
 
 ```expect
@@ -22,15 +22,15 @@ cat complex-nested.json | aux4 2table --format ascii
 ## auto-structure with deeply nested objects - markdown format (should match ASCII structure)
 
 ```execute
-cat complex-nested.json | aux4 2table --format md --structure 'copilot[model[config,type]],my[test[table,long,nested[field,array]]],table,test[list[name,age]]'
+cat complex-nested.json | aux4 2table --format md
 ```
 
 ```expect
 | copilot | my | table | test |  |  |  |  |  |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| model | test |  | list |  |  |  |  |  |
+| model | test |  |  |  |  |  | list |  |
 | config | type | table | long | nested |  | table | name | age |
-| gpt-5-mini | openai | name,text | this is a very long text example to demonstrate configuration settings in the YAML file. | name   item1, item2, item3 |  | name,text | David | 30 |
+| gpt-5-mini | openai | name,text | this is a very long text example to demonstrate configuration settings in the YAML file. | name | item1, item2, item3 | name,text | David | 30 |
 |  |  |  |  |  |  |  | Eva | 25 |
 |  |  |  |  |  |  |  | Frank | 28 |
 ```
