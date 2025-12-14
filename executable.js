@@ -246,8 +246,8 @@ async function generateAutoStructure(data) {
   if (!data || data.length === 0) return "";
 
   try {
-    // Use the legacy auto-structure generation
-    const { generateStructureFromJson } = await import('./lib/legacy2/AutoStructure.js');
+    // Use the auto-structure generation
+    const { generateStructureFromJson } = await import('./lib/AutoStructure.js');
     return generateStructureFromJson(data);
   } catch (e) {
     console.error('Error generating auto-structure:', e.message);
