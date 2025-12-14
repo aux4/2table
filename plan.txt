@@ -1,0 +1,65 @@
+⏺ Perfect! Now I can see the exact performance bottleneck. Let me analyze the computational complexity:
+
+  Wide Table Performance Issue Analysis:
+
+  1. Main Loop: for (let rowNum = 1; rowNum <= rows; rowNum++) → O(rows)
+  2. Row Rendering: renderRow() calls for (let col = 0; col <= this.table.maxColumn; col++) → O(columns)
+  3. Row Height: Each row can have multiple lines due to multiline cells → O(height)
+  4. Content Processing: Each cell processes ANSI codes, colors, alignment → O(content)
+
+  Total Complexity: O(rows × columns × height × content)
+
+  For wide_large: 200 rows × 20 columns × avg height × content processing = massive computation
+
+  The bottleneck is in the triple-nested loop structure:
+  - Outer: Row iteration (200 times)
+  - Middle: Column iteration (20 times per row = 4,000 iterations)
+  - Inner: Line height iteration (multiple lines per cell)
+
+⏺ 🎯 Performance Bottleneck Analysis Complete
+
+  Root Cause: Wide Table Rendering Complexity
+
+  Problem: The AsciiRenderer.renderRow() method has O(rows × columns × height) complexity that becomes
+  prohibitive for wide tables (20+ columns).
+
+  Evidence from Benchmarks:
+  - Narrow tables: 🚀 Excellent (7.55ms for 500 rows)
+  - Wide tables: 🐌 Very Slow (875.89ms for 200 rows × 20 cols)
+  - 99.7% render time: Parsing is fast (0.3%), rendering is the bottleneck
+
+  Technical Details:
+
+  Location: lib/AsciiRenderer.js:47-108
+
+  Bottleneck Structure:
+  for (let rowNum = 1; rowNum <= rows; rowNum++) {           // O(rows)
+    for (let col = 0; col <= this.table.maxColumn; col++) {  // O(columns)
+      for (let lineIndex = 0; lineIndex < rowHeight; lineIndex++) { // O(height)
+        // ANSI processing, color application, alignment
+      }
+    }
+  }
+
+  Complexity: O(200 × 20 × height) = ~4,000+ cell operations with expensive content processing each time.
+
+  Performance Impact:
+
+  - 4x rows + 1x width: 46.91ms → 875.89ms (18.7x slower)
+  - Each additional column: ~44ms penalty for 200 rows
+  - Memory efficiency: Excellent (0.00MB delta maintained)
+
+  Optimization Opportunities Identified:
+
+  1. Row-wise caching: Cache rendered row segments
+  2. Column batching: Process multiple columns per iteration
+  3. Content memoization: Pre-process ANSI/color operations
+  4. Parallel rendering: Process row segments concurrently
+  5. Incremental updates: Only re-render changed sections
+
+  The performance optimizations we implemented (ANSI caching, field pre-computation, Map optimization) are
+  working perfectly for normal use cases. The wide table issue is a separate architectural challenge in the
+  rendering pipeline that would require additional optimization strategies.
+
+  Bottom Line: Current performance is 🚀 Excellent for typical usage (nested structures, reasonable column
+  counts) and the monitoring system successfully identified the specific bottleneck for future optimization.
