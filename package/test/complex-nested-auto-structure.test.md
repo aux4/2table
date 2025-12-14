@@ -14,6 +14,7 @@ cat complex-nested.json | aux4 2table --format ascii --structure 'copilot[model[
  copilot             my                                                                                                                                table      test
  model               test                                                                                                                                         list
  config      type    table      long                                                                                      nested                                  name   age
+ model                                                                                                                    field   array
  gpt-5-mini  openai  name,text  this is a very long text example to demonstrate configuration settings in the YAML file.  name    item1, item2, item3  name,text  David   30
                                                                                                                                                                   Eva     25
                                                                                                                                                                   Frank   28
@@ -31,6 +32,7 @@ cat complex-nested.json | aux4 2table --format md --structure 'copilot[model[con
 | --- | --- | --- | --- | --- | --- | --- | --- | ---: |
 | model |  | test |  |  |  |  | list |  |
 | config | type | table | long | nested |  |  | name | age |
+| model |  |  |  | field | array |  |  |  |
 | gpt-5-mini | openai | name,text | this is a very long text example to demonstrate configuration settings in the YAML file. | name | item1, item2, item3 | name,text | David | 30 |
 |  |  |  |  |  |  |  | Eva | 25 |
 |  |  |  |  |  |  |  | Frank | 28 |
