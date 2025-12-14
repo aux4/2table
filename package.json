@@ -9,11 +9,7 @@
   },
   "scripts": {
     "test": "jest",
-    "build": "rollup -c",
-    "benchmark": "node scripts/benchmark.js",
-    "benchmark:quick": "node scripts/benchmark.js quick",
-    "benchmark:profile": "node scripts/benchmark.js profile",
-    "benchmark:compare": "node scripts/benchmark.js compare"
+    "build": "rollup -c"
   },
   "repository": {
     "type": "git",

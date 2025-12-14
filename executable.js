@@ -6,7 +6,6 @@ import { AsciiRenderer } from "./lib/AsciiRenderer.js";
 import { MarkdownRenderer } from "./lib/MarkdownRenderer.js";
 import { Table } from "./lib/Table.js";
 import { TableParser } from "./lib/TableParser.js";
-import { PerformanceMonitor } from "./lib/PerformanceMonitor.js";
 
 // Read from stdin
 async function readStdIn() {
@@ -95,13 +94,6 @@ if (format !== "ascii" && format !== "md") {
 }
 
 (async () => {
-  // Initialize performance monitoring if enabled
-  const perfEnabled = process.env.PERF_MONITOR === 'true';
-  if (perfEnabled) {
-    PerformanceMonitor.enable(true);
-    PerformanceMonitor.start('total_execution');
-  }
-
   let input;
 
   let invalidLines = [];
@@ -241,24 +233,7 @@ if (format !== "ascii" && format !== "md") {
       console.log(renderer.print());
     }
 
-    // Generate performance report if enabled
-    if (perfEnabled) {
-      PerformanceMonitor.end('total_execution', {
-        format,
-        dataSize: Array.isArray(input) ? input.length : 1,
-        hasLineNumbers: lineNumbers,
-        hasInvalidLines: invalidLines.length > 0
-      });
-
-      const report = PerformanceMonitor.generateReport();
-      if (report && report !== 'Performance monitoring is disabled or no measurements available.') {
-        console.log('\n' + report);
-      }
-    }
   } catch (e) {
-    if (perfEnabled) {
-      PerformanceMonitor.end('total_execution', { error: e.message });
-    }
     console.error("cannot print the table:", e.message);
     console.error("Stack:", e.stack);
     process.exit(3);
