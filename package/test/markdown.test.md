@@ -16,7 +16,7 @@ cat simple.json | aux4 2table --format md name,age,city
 
 ```expect
 | name | age | city |
-| --- | --- | --- |
+| --- | ---: | --- |
 | Alice | 30 | New York |
 | Bob | 25 | Los Angeles |
 | Charlie | 35 | Chicago |
@@ -37,7 +37,7 @@ cat nested.json | aux4 2table --format md name,age,address[street,city,state,zip
 
 ```expect
 | name | age | address |  |  |  |
-| --- | --- | --- | --- | --- | --- |
+| --- | ---: | --- | --- | --- | --- |
 |  |  | street | city | state | zipCode |
 | John | 30 | 123 Main St | NYC | NY | 10001 |
 | Jane | 25 | 456 Oak Ave | SF | CA | 94102 |
@@ -58,7 +58,7 @@ cat array.json | aux4 2table --format md name,age,address[street,city,state,zipC
 
 ```expect
 | name | age | address |  |  |  |
-| --- | --- | --- | --- | --- | --- |
+| --- | ---: | --- | --- | --- | --- |
 |  |  | street | city | state | zipCode |
 | John | 30 | 123 Main St | NYC | NY | 10001 |
 |  |  | 456 Oak Ave | NYC | NY | 10002 |
@@ -81,7 +81,7 @@ cat people.json | aux4 2table --format md name:Name,age:Age,email:"Email Address
 
 ```expect
 | Name | Age | Email Address |
-| --- | --- | --- |
+| --- | ---: | --- |
 | Alice | 30 | alice@example.com |
 | Bob | 25 | bob@example.com |
 | Charlie | 35 | charlie@example.com |
@@ -102,7 +102,7 @@ cat employees.json | aux4 2table --format md name:"Full Name",age:"Years Old",co
 
 ```expect
 | Full Name | Years Old | Contact Info |  |
-| --- | --- | --- | --- |
+| --- | ---: | --- | --- |
 |  |  | Email Address | Phone Number |
 | John | 30 | john@example.com | 123-456-7890 |
 | Jane | 25 | jane@example.com | 987-654-3210 |
@@ -134,7 +134,7 @@ cat nested-array-objects.json | aux4 2table --format md 'id,contacts[name,email,
 
 ```expect
 | id | contacts |  |  |
-| --- | --- | --- | --- |
+| ---: | --- | --- | --- |
 |  | name | email | role |
 | 1 | John Smith | john@example.com | Manager |
 |  | Jane Doe | jane@example.com | Developer |
@@ -157,7 +157,7 @@ cat people-with-address.json | aux4 2table --format md name,age,address.city,add
 
 ```expect
 | name | age | address.city | address.state |
-| --- | --- | --- | --- |
+| --- | ---: | --- | --- |
 | Alice | 30 | New York | NY |
 | Bob | 25 | Los Angeles | CA |
 | Charlie | 35 | Chicago | IL |
@@ -198,7 +198,7 @@ cat people-nested.json | aux4 2table --format md id,person.firstName,person.last
 
 ```expect
 | id | person.firstName | person.lastName | person.address.city | person.address.state |
-| --- | --- | --- | --- | --- |
+| ---: | --- | --- | --- | --- |
 | 1 | John | Smith | New York | NY |
 | 2 | Jane | Doe | Los Angeles | CA |
 ```
@@ -215,6 +215,6 @@ cat single-object.json | aux4 2table --format md name,age,city,email
 
 ```expect
 | name | age | city | email |
-| --- | --- | --- | --- |
+| --- | ---: | --- | --- |
 | Alice | 30 | New York | alice@example.com |
 ```

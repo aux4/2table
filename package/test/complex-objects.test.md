@@ -52,11 +52,11 @@ cat complex-data.json | aux4 2table 'config[database[host,port,credentials],api[
 ```
 
 ```expect
- config                                                                                metadata                                users      settings
- database                          api                                                 version  buildDate   dependencies       id  role   theme  notifications
- host       port  credentials      endpoints               rateLimit  features                              name      version                    email  push   sms
- localhost  5432  [object Object]  users, posts, comments        100  [object Object]  2.1.0    2023-12-01  express   4.18.0    1  admin  dark   true   false
-                                                                                                            mongoose  7.0.1     2  user
+ config                                                                                metadata                                     users         settings
+ database                          api                                                 version   buildDate   dependencies              id  role   theme     notifications
+ host       port  credentials      endpoints               rateLimit  features                               name          version                          email          push   sms
+ localhost  5432  [object Object]  users, posts, comments        100  [object Object]  2.1.0     2023-12-01  express       4.18.0       1  admin  dark      true           false
+                                                                                                             mongoose      7.0.1        2  user
 ```
 
 ## Complex objects with specified structure
@@ -159,8 +159,8 @@ cat mixed-objects.json | aux4 2table 'type,data[logs[level,message],metrics[cpu,
 ```expect
  type    data
          logs                      metrics
-         level  message            cpu  memory  disk
+         level  message                cpu  memory  disk
  user
- system  info   System started      75     512  [object Object]
+ system  info   System started          75     512  [object Object]
          error  Connection failed
 ```

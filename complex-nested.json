@@ -1,1 +1,0 @@
-[{"copilot":{"model":{"config":{"model":"gpt-5-mini"},"type":"openai"}},"my":{"test":{"table":"name,text","long":"this is a very long text example to demonstrate configuration settings in the YAML file.","nested":{"field":"name","array":["item1","item2","item3"]}}},"table":"name,text","test":{"list":[{"name":"David","age":30},{"name":"Eva","age":25},{"name":"Frank","age":28}]}}]
