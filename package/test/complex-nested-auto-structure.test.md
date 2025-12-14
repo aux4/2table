@@ -22,7 +22,8 @@ cat complex-nested.json | aux4 2table --format ascii --structure 'copilot[model[
 ## auto-structure with deeply nested objects - markdown format (should match ASCII structure)
 
 ```execute
-cat complex-nested.json | aux4 2table --format md
+cat complex-nested.json | aux4 2table --format md --structure 'copilot[model[config,type]],my[test[table,long,nested[field,array]]],table,test[list[name,age]]'
+
 ```
 
 ```expect
