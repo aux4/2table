@@ -36,9 +36,9 @@ cat nested.json | aux4 2table --format md name,age,address[street,city,state,zip
 ```
 
 ```expect
-| name | age | address |  |  |  |
-| --- | ---: | --- | --- | --- | --- |
+| name | age | address [4] |
 |  |  | street | city | state | zipCode |
+| --- | ---: | --- | --- | --- | --- |
 | John | 30 | 123 Main St | NYC | NY | 10001 |
 | Jane | 25 | 456 Oak Ave | SF | CA | 94102 |
 ```
@@ -57,9 +57,9 @@ cat array.json | aux4 2table --format md name,age,address[street,city,state,zipC
 ```
 
 ```expect
-| name | age | address |  |  |  |
-| --- | ---: | --- | --- | --- | --- |
+| name | age | address [4] |
 |  |  | street | city | state | zipCode |
+| --- | ---: | --- | --- | --- | --- |
 | John | 30 | 123 Main St | NYC | NY | 10001 |
 |  |  | 456 Oak Ave | NYC | NY | 10002 |
 | Jane | 25 | 789 Pine St | SF | CA | 94102 |
@@ -133,9 +133,9 @@ cat nested-array-objects.json | aux4 2table --format md 'id,contacts[name,email,
 ```
 
 ```expect
-| id | contacts |  |  |
-| ---: | --- | --- | --- |
+| id | contacts [3] |
 |  | name | email | role |
+| ---: | --- | --- | --- |
 | 1 | John Smith | john@example.com | Manager |
 |  | Jane Doe | jane@example.com | Developer |
 | 2 | Bob Wilson | bob@example.com | Designer |

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-The 2table package is a hierarchical JSON-to-table converter that transforms complex nested JSON structures into well-formatted ASCII and Markdown tables. It has been completely rearchitected using design patterns to eliminate complex conditional logic and provide maintainable, extensible code.
+The 2table package is a hierarchical JSON-to-table converter that transforms complex nested JSON structures into well-formatted ASCII and Markdown tables. It has been completely rearchitected using design patterns to eliminate complex conditional logic and provide maintainable, extensible code with high-performance optimizations.
 
 ## Architecture
 
@@ -36,6 +36,33 @@ The codebase follows a strict design pattern approach to avoid complex `if` stat
 - **ANSI Color Support**: Proper handling of color codes in width calculations
 - **Line Numbers**: Optional sequential line numbering
 - **Dot Notation**: Property access like `address.city`
+- **High-Performance Rendering**: Optimized for both narrow and wide tables with intelligent caching
+
+### Performance Optimizations
+
+The codebase includes several high-performance optimizations:
+
+#### **ANSI-Stripped Length Caching**
+- **Location**: `lib/AsciiRenderer.js:22-24, 398-427`
+- **Implementation**: `ansiCache` and `lengthCache` Maps cache ANSI code removal and text length calculations
+- **Benefit**: Eliminates repeated regex operations on identical text, especially for colored output
+
+#### **Wide Table Optimization**
+- **Location**: `lib/AsciiRenderer.js:51-53`
+- **Implementation**: Automatic batched processing for tables with 10+ columns
+- **Benefit**: Reduces overhead for wide tables through intelligent batch sizing
+
+#### **Multi-Level Caching System**
+- **Cell Cache**: Formatted cell content caching for narrow tables
+- **Row Cache**: Complete row segment caching
+- **Color Cache**: Color-applied text caching
+- **Format Cache**: Pre-computed column format caching
+- **Adaptive Strategy**: Disables heavy caching for wide tables (15+ columns) to reduce overhead
+
+#### **Optimized Field Processing**
+- **Location**: `lib/TableParser.js`
+- **Implementation**: Pre-computed field levels and paths during structure parsing
+- **Benefit**: Eliminates repeated path parsing during data extraction
 
 ## Building and Testing
 
@@ -89,46 +116,23 @@ echo '[{"name": "John", "contact": {"email": "john@example.com", "address": {"ci
 ### Core Architecture Files
 ```
 lib/
-├── Table.js                  # Main table class
-├── AsciiTable.js            # ASCII format implementation
-├── TableBuilder.js          # Builder pattern for table construction
+├── Table.js                  # Main table class with cell/row management
+├── AsciiRenderer.js         # High-performance ASCII format renderer
+├── MarkdownRenderer.js      # Markdown format renderer
+├── TableParser.js           # Pure JSON-to-Table parser with optimizations
 ├── Cell.js                  # Individual cell with multi-line support
-├── TableRow.js              # Row composite
-└── Structure.js             # Structure string parser
+└── Structure.js             # Hierarchical structure string parser
 ```
 
-### Strategy Pattern Files
+### Core Utility Files
 ```
 lib/
-├── ContentExtractor.js      # Property extraction strategies (includes InvalidLineExtractor)
-├── DataFormatter.js         # Nested data formatting strategies
-├── HeaderStrategy.js        # Header generation strategies
-├── AlignmentStrategy.js     # Text alignment strategies
-├── AlignmentFactory.js      # Alignment strategy factory
-├── ContentTypeStrategy.js   # Content type detection strategies
-├── LineNumberStrategy.js    # Line number handling strategies
-├── InvalidLineStrategy.js   # Invalid line data processing strategies
-├── InvalidRowStrategy.js    # Invalid row rendering strategies
-└── ContentFormatter.js     # Legacy compatibility formatter
-```
-
-### Utility Files
-```
-lib/
-├── WidthControl.js          # Column width calculation
-├── Input.js                 # Input handling utilities
 ├── Config.js               # Configuration management
 ├── Data.js                 # Data preparation utilities
-└── AutoStructure.js        # Automatic structure generation
+└── AutoStructure.js        # Automatic structure generation from JSON
 ```
 
-### Legacy Code
-```
-lib/legacy/                  # Original implementation (preserved for reference)
-├── BaseTable.js            # Original base table class
-├── AsciiTable.js           # Original ASCII implementation
-└── ...                     # Other legacy files
-```
+**Note**: Legacy strategy pattern files and complex architectural layers have been removed in favor of a simpler, high-performance architecture focused on core table generation functionality.
 
 ## Test Cases
 
