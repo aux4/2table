@@ -1,7 +1,7 @@
 {
   "scope": "aux4",
   "name": "2table",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Convert a JSON array of objects to a table format.",
   "license": "Apache-2.0",
   "git": "https://github.com/aux4/2table",
