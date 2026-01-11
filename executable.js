@@ -226,7 +226,7 @@ if (format !== "ascii" && format !== "md") {
 
     // Create appropriate renderer and print
     if (format === "ascii") {
-      const renderer = new AsciiRenderer(table);
+      const renderer = new AsciiRenderer(table, structure);
       console.log(renderer.print());
     } else if (format === "md") {
       const renderer = new MarkdownRenderer(table);
