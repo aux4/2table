@@ -56,3 +56,5 @@ jobs:
           level: ${{ inputs.level || 'patch' }}
           aux4_token: ${{ secrets.AUX4_ACCESS_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          working_directory: package
+          package_directory: .
