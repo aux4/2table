@@ -29,7 +29,8 @@
                 "default": "ascii",
                 "options": [
                   "ascii",
-                  "md"
+                  "md",
+                  "csv"
                 ]
               },
               {

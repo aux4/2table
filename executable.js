@@ -4,6 +4,7 @@ process.stdin.setEncoding("utf8");
 
 import { AsciiRenderer } from "./lib/AsciiRenderer.js";
 import { MarkdownRenderer } from "./lib/MarkdownRenderer.js";
+import { CsvRenderer } from "./lib/CsvRenderer.js";
 import { Table } from "./lib/Table.js";
 import { TableParser } from "./lib/TableParser.js";
 
@@ -76,20 +77,20 @@ if (args.length >= 1 && args.length <= 4) {
   }
 } else {
   console.error(
-    `Usage: 2table <format> [columns] [--lineNumbers true/false] [--showInvalidLines true/false]\\nFormats: ascii, md\\nExamples:\\n  2table ascii name,age,city --lineNumbers true\\n  2table ascii name,age,city true false\\nIf columns is omitted, structure will be auto-generated from JSON`
+    `Usage: 2table <format> [columns] [--lineNumbers true/false] [--showInvalidLines true/false]\\nFormats: ascii, md, csv\\nExamples:\\n  2table ascii name,age,city --lineNumbers true\\n  2table ascii name,age,city true false\\nIf columns is omitted, structure will be auto-generated from JSON`
   );
   process.exit(1);
 }
 
 if (!format) {
   console.error(
-    `Usage: 2table <format> [columns] [lineNumbers] [showInvalidLines]\\nFormats: ascii, md\\nExamples:\\n  2table ascii name,age,city false false\\n  2table ascii name,age,city true false\\nIf columns is omitted, structure will be auto-generated from JSON`
+    `Usage: 2table <format> [columns] [lineNumbers] [showInvalidLines]\\nFormats: ascii, md, csv\\nExamples:\\n  2table ascii name,age,city false false\\n  2table ascii name,age,city true false\\nIf columns is omitted, structure will be auto-generated from JSON`
   );
   process.exit(1);
 }
 
-if (format !== "ascii" && format !== "md") {
-  console.error(`Invalid format: ${format}\\nSupported formats: ascii, md`);
+if (format !== "ascii" && format !== "md" && format !== "csv") {
+  console.error(`Invalid format: ${format}\\nSupported formats: ascii, md, csv`);
   process.exit(1);
 }
 
@@ -230,6 +231,9 @@ if (format !== "ascii" && format !== "md") {
       console.log(renderer.print());
     } else if (format === "md") {
       const renderer = new MarkdownRenderer(table);
+      console.log(renderer.print());
+    } else if (format === "csv") {
+      const renderer = new CsvRenderer(table, structure);
       console.log(renderer.print());
     }
 

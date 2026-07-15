@@ -1,6 +1,8 @@
 #### Description
 
-2table converts a JSON array (or single JSON object) into a human-readable table. It supports two output formats: an ASCII fixed-width table and a Markdown table. You specify which fields to include using a compact structure language; if you omit the structure it will be inferred from the input JSON.
+2table converts a JSON array (or single JSON object) into a human-readable table or into CSV. It supports three output formats: an ASCII fixed-width table, a Markdown table, and CSV. You specify which fields to include using a compact structure language; if you omit the structure it will be inferred from the input JSON.
+
+CSV is intended for machine consumption: colors and column widths are ignored, values are comma-separated, and fields are quoted per RFC 4180 (a field is wrapped in double quotes when it contains a comma, double quote, carriage return or newline; embedded double quotes are doubled). Nested structures have no colspan in CSV, so multi-level headers are flattened to a single header row using dot notation (address[street,city] becomes the columns address.street and address.city).
 
 The structure language supports nested objects and arrays (e.g. address[street,city]) so nested fields can be rendered as sub-columns. Columns can be given fixed widths (and optional truncation) to force wrapping or to align numeric values.
 
@@ -16,7 +18,7 @@ aux4 2table [optional args (based on profile name break by :] <command> --<varia
 
 Key parameters
 
-- format: output format, either ascii (default) or md. Can be provided as the first positional argument or via --format.
+- format: output format, one of ascii (default), md, or csv. Provided via --format.
 - table: the table structure (columns) to output. This is a positional argument when provided. If omitted, the utility will try to auto-generate the structure from the JSON input.
 - lineNumbers: add a first column with line numbers starting from 1 (default: false).
 - showInvalidLines: show invalid JSON lines as <invalid line> instead of skipping them (default: false).
@@ -59,6 +61,21 @@ This prints the same columns in a GitHub-flavored Markdown table.
 | Alice | 30 | New York |
 | Bob | 25 | Los Angeles |
 | Charlie | 35 | Chicago |
+```
+
+##### CSV output (use --format csv)
+
+```bash
+cat simple.json | aux4 2table --format csv name,age,city
+```
+
+Emits comma-separated values with RFC 4180 quoting; nested headers are flattened using dot notation.
+
+```text
+name,age,city
+Alice,30,New York
+Bob,25,Los Angeles
+Charlie,35,Chicago
 ```
 
 ##### Nested structure (object fields rendered as sub-columns)

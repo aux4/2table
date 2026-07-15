@@ -2,7 +2,11 @@
 
 ## Project Overview
 
-The 2table package is a hierarchical JSON-to-table converter that transforms complex nested JSON structures into well-formatted ASCII and Markdown tables. It has been completely rearchitected using design patterns to eliminate complex conditional logic and provide maintainable, extensible code with high-performance optimizations.
+The 2table package is a hierarchical JSON-to-table converter that transforms complex nested JSON structures into well-formatted ASCII and Markdown tables, or into CSV. It has been completely rearchitected using design patterns to eliminate complex conditional logic and provide maintainable, extensible code with high-performance optimizations.
+
+Each output format is its own renderer (Strategy) class that reads the shared `Table` cell model and emits a string via `print()`: `AsciiRenderer`, `MarkdownRenderer`, `CsvRenderer`. The renderer is selected by the `format` string in `executable.js`. To add a format, add a new `*Renderer` class and one dispatch branch — never branch on format inside an existing renderer.
+
+`CsvRenderer` emits RFC 4180 CSV (quotes a field containing a comma, double quote, CR or LF; doubles embedded quotes), ignores ANSI colors and column-width formatting, and flattens multi-level headers into a single header row using the dot-notation label convention (`address[street,city]` -> `address.street`, `address.city`). It derives the flattened header labels from the parsed structure (`Structure.js`) rather than inferring them spatially from header cells, because a top-level leaf placed between two groups is spatially ambiguous.
 
 ## Architecture
 
@@ -119,6 +123,7 @@ lib/
 ├── Table.js                  # Main table class with cell/row management
 ├── AsciiRenderer.js         # High-performance ASCII format renderer
 ├── MarkdownRenderer.js      # Markdown format renderer
+├── CsvRenderer.js           # CSV format renderer (RFC 4180, flattened headers)
 ├── TableParser.js           # Pure JSON-to-Table parser with optimizations
 ├── Cell.js                  # Individual cell with multi-line support
 └── Structure.js             # Hierarchical structure string parser

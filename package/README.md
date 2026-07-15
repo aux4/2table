@@ -1,8 +1,8 @@
 # aux4/2table
 
-Convert a JSON array of objects to a human-readable table (ASCII or Markdown).
+Convert a JSON array of objects to a human-readable table (ASCII or Markdown) or to CSV.
 
-A lightweight aux4 package that reads a JSON array from stdin and prints a table. Use it to inspect JSON data quickly in a terminal or to generate Markdown tables for documentation.
+A lightweight aux4 package that reads a JSON array from stdin and prints a table. Use it to inspect JSON data quickly in a terminal, generate Markdown tables for documentation, or emit CSV for machine consumption.
 
 ## Installation
 
@@ -24,6 +24,12 @@ Produce Markdown output with --format:
 cat data.json | aux4 2table --format md name,age,city
 ```
 
+Produce CSV output for machine consumption:
+
+```bash
+cat data.json | aux4 2table --format csv name,age,city
+```
+
 ## Usage
 
 This package converts JSON arrays into table output. You can select simple fields, expand nested objects and arrays, rename columns, and set fixed column widths for wrapping.
@@ -40,7 +46,7 @@ Variables (defined in the package):
 
 - --format
   - Description: Table output format
-  - Options: `ascii` (default), `md`
+  - Options: `ascii` (default), `md`, `csv`
 - table (positional)
   - Description: The table structure to output (column list)
   - Examples: `name,age,city`, `name,age,address[street,city]`, `name:"Full Name",age:Age`
@@ -108,6 +114,37 @@ Output:
 | Alice | 30 | New York |
 | Bob | 25 | Los Angeles |
 | Charlie | 35 | Chicago |
+```
+
+### CSV output (--format csv)
+
+CSV is intended for machine consumption: colors and column widths are ignored, values are comma-separated, and fields are quoted per RFC 4180 (a field is wrapped in double quotes when it contains a comma, double quote, carriage return or newline; embedded double quotes are doubled).
+
+Command:
+
+```bash
+cat data.json | aux4 2table --format csv name,age,city
+```
+
+Output:
+
+```text
+name,age,city
+Alice,30,New York
+Bob,25,Los Angeles
+Charlie,35,Chicago
+```
+
+Nested/hierarchical structures have no colspan in CSV, so headers are flattened to a single row using dot notation (`address[street,city]` becomes the columns `address.street` and `address.city`):
+
+```bash
+cat nested.json | aux4 2table --format csv name,address[street,city]
+```
+
+```text
+name,address.street,address.city
+John,123 Main St,NYC
+Jane,456 Oak Ave,SF
 ```
 
 ### Nested objects
@@ -199,6 +236,7 @@ The repository includes full example runs in the `test/` folder. Reproduce them 
 
 - ASCII examples: `test/ascii.test.md`
 - Markdown examples: `test/markdown.test.md`
+- CSV examples: `test/csv.test.md`
 
 Each test file contains sample input files, the exact command to run, and expected output blocks.
 
