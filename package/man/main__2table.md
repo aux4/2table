@@ -6,6 +6,19 @@ CSV is intended for machine consumption: colors and column widths are ignored, v
 
 The structure language supports nested objects and arrays (e.g. address[street,city]) so nested fields can be rendered as sub-columns. Columns can be given fixed widths (and optional truncation) to force wrapping or to align numeric values.
 
+Columns also support a `{format:...}` modifier that renders each raw value using Intl formatting before it reaches any renderer, so ASCII, Markdown and CSV all receive the same formatted value. Supported format types and their option keys:
+
+- `format:number` — thousands grouping on by default. Options: `decimals:N` (fixed min & max fraction digits), `locale:` (default host locale, falling back to en-US).
+- `format:currency` — options: `currency:USD` (ISO 4217 code, default USD), `decimals:`, `locale:`.
+- `format:percent` — the value is treated as a ratio (0.25 renders as 25%). Options: `decimals:`, `locale:`.
+- `format:date` — options: `style:short|medium|long|full` (default medium), `dateStyle:` (override), `locale:`.
+- `format:time` — options: `style:short|medium|long|full` (default medium), `timeStyle:` (override), `locale:`.
+- `format:datetime` — options: `style:` (sets both date and time parts), `dateStyle:` (override, default medium), `timeStyle:` (override, default short), `locale:`.
+
+For temporal formats the unified `style` key sets the presentation — the dateStyle for `date`, the timeStyle for `time`, and BOTH parts for `datetime`. The fine-grained `dateStyle`/`timeStyle` keys remain available as per-part overrides. Precedence per part: explicit `dateStyle`/`timeStyle` > `style` > built-in default (e.g. `ts{format:datetime,style:medium,timeStyle:short}` renders the date medium and the time short).
+
+Multiple options are comma-separated inside the braces (e.g. `amount{format:currency,currency:USD,decimals:2}`). number/currency/percent columns right-align by default (an explicit `align:` always wins). Empty values (null, undefined, "") render as an empty cell, and an un-parseable date or a non-numeric value given a numeric format falls back to the original raw value rather than emitting "NaN" or "Invalid Date".
+
 The command accepts the output format and a table structure/column list. Format can be provided positionally or with --format; the table structure is a positional argument (or omitted to auto-generate).
 
 #### Usage
@@ -29,6 +42,10 @@ Structure examples
 - name,age,address[street,city] -> nested object rendered as sub-columns
 - id,contacts[name,email] -> array of objects; rows expand for each nested array element
 - name{width:8} -> column width control (wraps long text to the width)
+- amount{format:currency,currency:USD} -> render the value as USD currency
+- rate{format:percent,decimals:1} -> render a ratio as a percentage with one decimal
+- born{format:date,style:long} -> render an ISO date string as a long date (dateStyle:long overrides style)
+- ts{format:datetime,style:medium,timeStyle:short} -> both parts medium, time part overridden to short
 
 #### Example
 
@@ -152,3 +169,17 @@ cat nested.json | aux4 2table name,age,address.city,address.state
 ```
 
 Access deeply nested object properties using dot notation without expanding the entire nested structure.
+
+##### Value formatting with {format:...}
+
+```bash
+echo '[{"amount":1234.5,"qty":3,"rate":0.1234,"born":"1990-05-01","ts":"2026-07-20T14:30:00Z"}]' \
+  | aux4 2table 'amount{format:currency,currency:USD},qty{format:number,decimals:0},rate{format:percent,decimals:1},born{format:date},ts{format:datetime}'
+```
+
+Renders each column with its declared format. Numeric columns (number, currency, percent) right-align automatically.
+
+```text
+    amount  qty   rate  born          ts
+ $1,234.50    3  12.3%  May 1, 1990   Jul 20, 2026, 2:30 PM
+```

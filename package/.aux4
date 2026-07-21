@@ -35,7 +35,7 @@
               },
               {
                 "name": "table",
-                "text": "The table structure to output.",
+                "text": "The table structure to output. Columns support a {format:...} modifier to render values as number, currency, percent, date, time or datetime (e.g. amount{format:currency,currency:USD}).",
                 "default": "",
                 "arg": true
               },

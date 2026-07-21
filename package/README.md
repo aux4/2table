@@ -64,6 +64,7 @@ Table expression features
 - Arrays of objects: `contacts[name,email]`
 - Column renaming: `name:"Full Name",age:Age`
 - Fixed width with wrapping: `name{width:8},description{width:20}`
+- Value formatting: `amount{format:currency,currency:USD},rate{format:percent}`
 
 Input: JSON array provided via stdin.
 
@@ -185,6 +186,37 @@ Set a width for long text fields to enable wrapping in ASCII output:
 ```bash
 cat long-text.json | aux4 2table 'name{width:8},description{width:20}'
 ```
+
+### Value formatting
+
+Use the `{format:...}` column modifier to render raw values as numbers, currency, percentages, dates, times or datetimes. Formatting is applied before rendering, so it is consistent across ASCII, Markdown and CSV output. All formats are Intl-based.
+
+| Format | Option keys | Notes |
+| --- | --- | --- |
+| `number` | `decimals`, `locale` | Thousands grouping is on by default. |
+| `currency` | `currency` (ISO code, default `USD`), `decimals`, `locale` | |
+| `percent` | `decimals`, `locale` | The value is treated as a ratio (`0.25` renders as `25%`). |
+| `date` | `style` (`short`\|`medium`\|`long`\|`full`, default `medium`), `dateStyle` (override), `locale` | |
+| `time` | `style` (`short`\|`medium`\|`long`\|`full`, default `medium`), `timeStyle` (override), `locale` | |
+| `datetime` | `style` (sets both parts), `dateStyle` (override, default `medium`), `timeStyle` (override, default `short`), `locale` | |
+
+Multiple options are comma-separated inside the braces. `locale` defaults to the host locale (falling back to `en-US`).
+
+**Temporal `style`:** the unified `style` key sets the presentation for temporal formats — the `dateStyle` for `date`, the `timeStyle` for `time`, and BOTH parts for `datetime`. The fine-grained `dateStyle` / `timeStyle` keys remain available as per-part overrides. Precedence per part is: explicit `dateStyle`/`timeStyle` > `style` > built-in default. For example, `ts{format:datetime,style:medium,timeStyle:short}` renders the date part medium and the time part short.
+
+```bash
+echo '[{"amount":1234.5,"qty":3,"rate":0.1234,"born":"1990-05-01","ts":"2026-07-20T14:30:00Z"}]' \
+  | aux4 2table 'amount{format:currency,currency:USD},qty{format:number,decimals:0},rate{format:percent,decimals:1},born{format:date},ts{format:datetime}'
+```
+
+Output:
+
+```text
+    amount  qty   rate  born          ts
+ $1,234.50    3  12.3%  May 1, 1990   Jul 20, 2026, 2:30 PM
+```
+
+**Note:** `number`, `currency` and `percent` columns right-align automatically (an explicit `align:` always wins). Empty values render as an empty cell, and an un-parseable date or a non-numeric value given a numeric format falls back to the original raw value.
 
 ### Auto-structure generation
 

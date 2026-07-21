@@ -30,6 +30,15 @@ The codebase follows a strict design pattern approach to avoid complex `if` stat
 - **Visitor Pattern**: Cell context communication (isLastColumn)
 - **Factory Pattern**: AlignmentFactory for creating alignment strategies
 
+#### Value Formatting (Strategy + Factory)
+- **Location**: `lib/ValueFormatter.js`, wired in `lib/TableParser.js` (`populateDataItem`)
+- **Purpose**: Implements the per-column `{format:...}` modifier (number, currency, percent, date, time, datetime). Each format type is its own strategy class (`NumberFormatter`, `CurrencyFormatter`, `PercentFormatter`, `DateFormatter`, `TimeFormatter`, `DateTimeFormatter`); `IdentityFormatter` is the default that returns values unchanged so existing behavior is untouched.
+- **Dispatch**: `ValueFormatterFactory.create(columnFormat)` maps the `format` type string to a strategy via a lookup registry (`FORMATTER_REGISTRY`) — never a switch/if. Adding a format type = one class + one registry entry.
+- **Contract**: each strategy exposes `format(value)` (returns a display string, or the original value on empty/un-parseable input — never "NaN"/"Invalid Date") and `rightAligned(value)` (numeric strategies request right alignment; temporal/identity do not). Empty/NaN/Invalid-Date guarding lives in the `NumericFormatter`/`TemporalFormatter` base classes, not in scattered ifs.
+- **Temporal style**: the unified `style` option is the primary key for temporal presentation — it sets the dateStyle for `date`, the timeStyle for `time`, and BOTH parts for `datetime`. `dateStyle`/`timeStyle` remain as per-part overrides. Precedence per part is resolved via the `resolveTemporalStyle(explicit, style, fallback)` helper (`optionValue(explicit) ?? optionValue(style) ?? fallback`) — explicit part style > `style` > built-in default (date medium, time medium, datetime = date medium + time short). No if-chains; blank/whitespace options are treated as absent by `optionValue`. Valid values: `short|medium|long|full`.
+- **Where it runs**: `TableParser.populateDataItem` builds one formatter per column (cached in `columnMetadata`) and applies `formatter.format(rawValue)` BEFORE `formatCellValue`, so ASCII/Markdown/CSV all receive identical formatted values. Auto right-align is driven by `formatter.rightAligned(rawValue)` and is skipped when the column has an explicit `align:`.
+- **Structure parsing**: `lib/Structure.js` `parseItems` tracks brace depth (so commas inside `{...}` don't split fields) and `parseProperties` splits options on `,` or `;`, parsing numeric options (`width`, `decimals`) to integers. `lib/StructureParser.js` (secondary parser) mirrors the `decimals` parseInt handling.
+
 ### Core Features
 
 - **Hierarchical Structure Support**: Handles deeply nested JSON like `contact[email,address[street,city]]`
