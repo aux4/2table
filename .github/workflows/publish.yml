@@ -50,11 +50,21 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Mint hub publish token
+        id: mint
+        env:
+          CLIENT_ID: ${{ secrets.AUX4_PUBLISHER_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.AUX4_PUBLISHER_CLIENT_SECRET }}
+        run: |
+          if [ -z "$CLIENT_ID" ] || [ -z "$CLIENT_SECRET" ]; then echo "::error::publisher client id/secret not set"; exit 1; fi
+          TOK=$(curl -sf -u "$CLIENT_ID:$CLIENT_SECRET" -d grant_type=client_credentials https://sso.aux4.io/token | jq -r '.access_token // empty')
+          if [ -z "$TOK" ]; then echo "::error::client_credentials mint returned no access_token"; exit 1; fi
+          echo "::add-mask::$TOK"; echo "token=$TOK" >> "$GITHUB_OUTPUT"
       - name: Publish package
         uses: aux4/publish-package-action@v1
         with:
           level: ${{ inputs.level || 'patch' }}
-          aux4_token: ${{ secrets.AUX4_ACCESS_TOKEN }}
+          aux4_token: ${{ steps.mint.outputs.token }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           working_directory: package
           package_directory: .
